@@ -1,6 +1,5 @@
 package com.itgates.ultra.pulpo.cira.ui.composeUI
 
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -17,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,10 +26,11 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.AccountType
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
+import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum
 import com.itgates.ultra.pulpo.cira.ui.theme.*
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
-import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Class
 import com.itgates.ultra.pulpo.cira.ui.activities.PlanningActivity
 import com.itgates.ultra.pulpo.cira.utilities.GlobalFormats
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -155,7 +154,7 @@ fun PlanningScreen(
                                             activity.currentValues.divisionCurrentValue.id,
                                             activity.currentValues.brickCurrentValue.id,
                                             activity.currentValues.classCurrentValue.id,
-                                            (activity.currentValues.accTypeCurrentValue as AccountType).table,
+                                            activity.currentValues.accTypeCurrentValue.id.toInt(),
                                             0 // for new apply filters
                                         )
                                         isDataChangedToRefresh.value = !isDataChangedToRefresh.value
@@ -176,10 +175,10 @@ fun PlanningScreen(
                 verticalArrangement = Arrangement.spacedBy(padding_8)
             ) {
 
-                activity.currentValues.getDoctorListsMap(activity.currentValues.doctorsDataList).forEach { (crm_table, list) ->
+                activity.currentValues.getDoctorListsMap(activity.currentValues.doctorsDataList).forEach { (accTypeName, list) ->
                     if (list.isNotEmpty()) {
                         val accountType = activity.currentValues.allAccountTypesList.find {
-                            it.table == crm_table
+                            it.embedded.name == accTypeName
                         }
                         item {
                             Row(
@@ -254,7 +253,7 @@ fun PlanningScreen(
                                                         if (isSelected.value) ITGatesWhiteColor else ITGatesSecondaryColor
                                                     )
                                                 ) {
-                                                    append("(${item.accTypeName})")
+                                                    append("(${"item.accTypeName"})")
                                                 }
                                             },
                                             size = 17.sp
@@ -417,7 +416,7 @@ fun PlanningScreen(
                                             activity.currentValues.divisionCurrentValue.id,
                                             activity.currentValues.brickCurrentValue.id,
                                             activity.currentValues.classCurrentValue.id,
-                                            (activity.currentValues.accTypeCurrentValue as AccountType).table,
+                                            activity.currentValues.accTypeCurrentValue.id.toInt(),
                                             shiftIndex
                                         )
                                         println("--------------------------------------------- ${isDataChangedToRefresh.value}")
@@ -446,7 +445,7 @@ fun PlanningScreen(
                     else -> activity.currentValues.getDoctorListsMap(activity.currentValues.otherDoctorsDataListToShow)
                 }
 
-                list.forEach { (crm_table, list) ->
+                list.forEach { (accTypeName, list) ->
                     // search filter ...
                     val filteredList = if (searchValue.value.isNotEmpty()) {
                         list.filter {
@@ -460,7 +459,7 @@ fun PlanningScreen(
 
                     if (filteredList.isNotEmpty()) {
                         val accountType = activity.currentValues.allAccountTypesList.find {
-                            it.table == crm_table
+                            it.embedded.name == accTypeName
                         }
                         item {
                             Row(
@@ -533,7 +532,7 @@ fun PlanningScreen(
                                                         if (isSelected.value) ITGatesWhiteColor else ITGatesSecondaryColor
                                                     )
                                                 ) {
-                                                    append("(${item.accTypeName})")
+                                                    append("(${"item.accTypeName"})")
                                                 }
                                             },
                                             size = 17.sp
@@ -651,18 +650,23 @@ fun SelectableDropDownMenu(
                     if (data.isNotEmpty()) {
                         when(data[0]) {
                             is Division -> dataArrayList.add(
-                                0, Division(-1L, EmbeddedEntity("All"), "", "",
-                                "", "", "", "", "")
+                                0, Division(-1L, EmbeddedEntity("All"), 0, 0,
+                                0, "")
                             )
                             is Brick -> dataArrayList.add(
                                 0, Brick(-1L, EmbeddedEntity("All"), "", "")
                             )
                             is AccountType -> dataArrayList.add(
-                                0, AccountType(-1L, EmbeddedEntity("All"), "crm_All",
-                                    "", "", 0)
+                                0, AccountType(-1L, EmbeddedEntity("All"), 0,0)
                             )
-                            is Class -> dataArrayList.add(
-                                0, Class(-1L, EmbeddedEntity("All"), 0)
+                            is IdAndNameEntity -> dataArrayList.add(
+                                0,
+                                IdAndNameEntity(
+                                    -1L,
+                                    EmbeddedEntity("All"),
+                                    IdAndNameTablesNamesEnum.CLASS,
+                                    0
+                                )
                             )
                         }
                     }

@@ -2,8 +2,10 @@ package com.itgates.ultra.pulpo.cira.ui.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,8 +19,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.lifecycleScope
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.ImagePainter
+import coil.compose.rememberImagePainter
+import coil.transform.CircleCropTransformation
 import com.itgates.ultra.pulpo.cira.ui.activities.*
 import com.itgates.ultra.pulpo.cira.AppController
 import com.itgates.ultra.pulpo.cira.CoroutineManager
@@ -37,6 +42,7 @@ import com.itgates.ultra.pulpo.cira.utilities.Utilities
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.itgates.ultra.pulpo.cira.enumerations.CachingDataTackStatus
+import com.itgates.ultra.pulpo.cira.network.models.requestModels.UploadedActualVisitsListModel
 import com.itgates.ultra.pulpo.cira.network.models.requestModels.UploadedNewPlanModel
 import com.itgates.ultra.pulpo.cira.ui.utils.BaseDataActivity
 import com.itgates.ultra.pulpo.cira.utilities.GlobalFormats
@@ -59,8 +65,6 @@ class MainActivity : BaseDataActivity() {
 
     private var name = MutableStateFlow("...")
     private var code = MutableStateFlow("...")
-    private var divName = MutableStateFlow("...")
-    private var lineName = MutableStateFlow("...")
     private var lastLogin = MutableStateFlow("...")
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -234,10 +238,8 @@ class MainActivity : BaseDataActivity() {
             if (mainActivity_isNewUser) {
                 delay(1500)
             }
-            name.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.NAME).await()
+            name.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.FULL_NAME).await()
             code.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.CODE).await()
-            divName.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.DIVISIONS_NAME).await()
-            lineName.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.LINE_NAME).await()
             lastLogin.value = cacheViewModel.getDataStoreService().getDataObjAsync(PreferenceKeys.LAST_LOGIN).await()
         }
     }
@@ -260,7 +262,9 @@ class MainActivity : BaseDataActivity() {
             if (filteredList.isNotEmpty()) {
                 println("***************************** ${Date().time} $filteredList")
                 serverViewModel.uploadActualVisitsData(
-                    filteredList.stream().map { UploadedActualVisitModel(it) }.toList()
+                    UploadedActualVisitsListModel(
+                        filteredList.stream().map { UploadedActualVisitModel(it) }.toList()
+                    )
                 )
             }
         }
@@ -268,7 +272,9 @@ class MainActivity : BaseDataActivity() {
         serverViewModel.uploadedActualVisitData.observeForever { response ->
             if (response.Data.isNotEmpty()) {
                 response.Data.forEach {
-                    cacheViewModel.uploadedActualVisitData(it)
+                    if (it.visitId > 0) {
+                        cacheViewModel.uploadedActualVisitData(it)
+                    }
                 }
             }
         }
@@ -421,40 +427,33 @@ class MainActivity : BaseDataActivity() {
                         .fillMaxSize()
                         .clip(RoundedCornerShape(bottomStart = firstBoxCornerRadius))
                         .background(ITGatesWhiteColor),
-                    contentAlignment = Alignment.Center
-                ) {
-//                    ButtonFactory(text = "export data") {
-//                        CoroutineManager.getScope().launch {
-//                            println("##############################################################################")
-//                            println(
-//                                cacheViewModel.getDataStoreService()
-//                                    .getDataObjAsync(stringPreferencesKey("custom_logs"))
-//                                    .await()
-//                            )
-//                            println("##############################################################################")
-//                        }
-//                    }
-                }
+                )
             }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(ITGatesWhiteColor)
             ) {
-                Box(
-                    modifier = Modifier
-                        .clip(ITGatesEndCornerShape)
-                        .background(ITGatesPrimaryColor)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(vertical = padding_24, horizontal = padding_36),
-                        verticalArrangement = Arrangement.spacedBy(padding_4)
+                Box(modifier = Modifier.fillMaxWidth(0.9F)) {
+                    Box(
+                        modifier = Modifier
+                            .clip(ITGatesEndCornerShape)
+                            .background(ITGatesPrimaryColor)
                     ) {
-                        WhiteTextFactory(text = "Name: ${name.collectAsState().value}")
-                        WhiteTextFactory(text = "Code: ${code.collectAsState().value}")
-                        WhiteTextFactory(text = "Division: ${divName.collectAsState().value}")
-                        WhiteTextFactory(text = "Line: ${lineName.collectAsState().value}")
-                        WhiteTextFactory(text = "Last Login: ${lastLogin.collectAsState().value}")
+                        Column(
+                            modifier = Modifier.padding(vertical = padding_24, horizontal = padding_30),
+                            verticalArrangement = Arrangement.spacedBy(padding_4)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CoilImage("${application.getString(R.string.BASE_URL_PHARMA)}/storage/users/607/profile/images/1_1685880374.jpg")
+                            }
+                            WhiteTextFactory(text = "Name: ${name.collectAsState().value}")
+                            WhiteTextFactory(text = "Code: ${code.collectAsState().value}")
+                            WhiteTextFactory(text = "Last Login: ${lastLogin.collectAsState().value}")
+                        }
                     }
                 }
             }
@@ -486,6 +485,10 @@ class MainActivity : BaseDataActivity() {
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             Spacer(modifier = Modifier.weight(spaceSize))
+//                            Box(modifier = Modifier
+//                                .weight(iconSize)
+//                                .aspectRatio(1F))
+
                             Column(
                                 modifier = Modifier
                                     .weight(iconSize)
@@ -604,36 +607,63 @@ class MainActivity : BaseDataActivity() {
                                 MultiLineTextFactory(text = "Reports")
                             }
                             Spacer(modifier = Modifier.weight(spaceSize))
-//                            Box(modifier = Modifier
-//                                .weight(iconSize)
-//                                .aspectRatio(1F))
+                            Box(modifier = Modifier
+                                .weight(iconSize)
+                                .aspectRatio(1F))
 
-                            Column(
-                                modifier = Modifier
-                                    .weight(iconSize)
-                                    .clip(ITGatesCardCornerShape)
-                                    .clickable {
-                                        val intent =
-                                            Intent(this@MainActivity, PlanningActivity::class.java)
-                                        startActivity(intent)
-                                    }
-                                    .padding(padding_8),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1F),
-                                    painter = painterResource(R.drawable.main_report_icon),
-                                    contentDescription = "Icon",
-                                    tint = ITGatesPrimaryColor
-                                )
-                                MultiLineTextFactory(text = "Planning")
-                            }
+//                            Column(
+//                                modifier = Modifier
+//                                    .weight(iconSize)
+//                                    .clip(ITGatesCardCornerShape)
+//                                    .clickable {
+//                                        val intent =
+//                                            Intent(this@MainActivity, PlanningActivity::class.java)
+//                                        startActivity(intent)
+//                                    }
+//                                    .padding(padding_8),
+//                                horizontalAlignment = Alignment.CenterHorizontally
+//                            ) {
+//                                Icon(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .aspectRatio(1F),
+//                                    painter = painterResource(R.drawable.main_report_icon),
+//                                    contentDescription = "Icon",
+//                                    tint = ITGatesPrimaryColor
+//                                )
+//                                MultiLineTextFactory(text = "Planning")
+//                            }
                             Spacer(modifier = Modifier.weight(spaceSize))
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoilApi::class)
+    @Composable
+    fun CoilImage(url: String) {
+        Box(
+            modifier = Modifier.size(padding_60),
+            contentAlignment = Alignment.Center
+        ) {
+            val painter = rememberImagePainter(
+                data = url,
+                builder = {
+                    placeholder(R.drawable.ic_launcher_background) // TODO CHANGE ICONS
+                    error(R.drawable.ic_launcher_foreground) // TODO CHANGE ICONS
+                    crossfade(1000)
+                    transformations(
+                        CircleCropTransformation()
+                    )
+                }
+            )
+
+            val painterStatus = painter.state
+            Image(painter = painter, contentDescription = "Image", modifier = Modifier.fillMaxSize())
+            if (painterStatus is ImagePainter.State.Loading) {
+                CircularProgressIndicator()
             }
         }
     }

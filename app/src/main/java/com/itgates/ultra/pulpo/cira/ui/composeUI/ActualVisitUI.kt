@@ -22,8 +22,6 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEnti
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.SettingEnum
 import com.itgates.ultra.pulpo.cira.ui.activities.ActualActivity
-import com.itgates.ultra.pulpo.cira.ui.composeUI.DoctorWithNumAndMultiplicity
-import com.itgates.ultra.pulpo.cira.ui.composeUI.DoctorWithoutNumAndMultiplicity
 import com.itgates.ultra.pulpo.cira.ui.theme.*
 import com.itgates.ultra.pulpo.cira.ui.utils.ActualCurrentValues
 import com.itgates.ultra.pulpo.cira.utilities.GlobalFormats
@@ -36,7 +34,7 @@ fun ActualVisitUI(activity: ActualActivity) {
     val isRoomDataFetchedToRefresh = activity.isRoomDataFetchedToRefresh.collectAsState()
     val isDataChangedToRefresh = remember { mutableStateOf(false) }
     when(isRoomDataFetchedToRefresh.value) {
-        true, false -> {
+        in 0..5 -> {
             when(isDataChangedToRefresh.value) {
                 true, false -> {
                     if (activity.isPlanned) {
@@ -443,7 +441,7 @@ fun SelectableDropDownMenu(
                 ) {
                     val dataArrayList = ArrayList(data)
                     // All Bricks
-                    if (data.isNotEmpty() && data[0] is Brick || typeFlag == "BRICK") {
+                    if ((data.isNotEmpty() && data[0] is Brick) || typeFlag == "BRICK") {
                         dataArrayList.add(
                             0,
                             Brick(-1L, EmbeddedEntity("All Bricks"), "", "")

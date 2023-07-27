@@ -1,9 +1,6 @@
 package com.itgates.ultra.pulpo.cira.network.models.requestModels
 
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.generalData.NewPlanEntity
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.MultiplicityEnum
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.ShiftEnum
-import kotlin.streams.toList
 
 data class UploadedNewPlanModel(
     val id: Long,
@@ -20,7 +17,7 @@ data class UploadedNewPlanModel(
 ) {
     constructor(newPlan: NewPlanEntity): this (
         newPlan.onlineId, newPlan.id, newPlan.divisionId, newPlan.accountTypeId.toInt(),
-        newPlan.itemId, newPlan.itemDoctorId, newPlan.visitDate, newPlan.visitTime, newPlan.userId,
-        newPlan.teamId, newPlan.insertionDate
+        newPlan.accountId, newPlan.accountDoctorId, newPlan.visitDate, newPlan.visitTime, newPlan.userId,
+        newPlan.lineId, newPlan.insertionDate
     )
 }

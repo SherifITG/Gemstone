@@ -34,37 +34,57 @@ fun GiveawaysScreen(activity: ActualActivity) {
 
     println("-------------------------------------------------- >> ${isDataChangedToRefresh.value}")
 
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.Center,
-        floatingActionButton = {
-            if (!activity.currentValues.isAllGiveawayListIsPicked()) {
-                FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
-                    ButtonFactory(text = "Add Giveaway") {
-                        if (activity.currentValues.isAddingGiveawayIsAccepted()) {
-                            activity.currentValues.giveawaysModuleList.add(GiveawayModule())
-                            isDataChangedToRefresh.value = !isDataChangedToRefresh.value
-                        }
-                        else {
-                            Utilities.createCustomToast(activity.applicationContext, "Fill the last giveaway record first")
+    if (activity.currentValues.isDivisionSelected() && !activity.currentValues.isGiveawayListEmpty()) {
+        Scaffold(
+            floatingActionButtonPosition = FabPosition.Center,
+            floatingActionButton = {
+                if (!activity.currentValues.isAllGiveawayListIsPicked()) {
+                    FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
+                        ButtonFactory(text = "Add Giveaway") {
+                            if (activity.currentValues.isAddingGiveawayIsAccepted()) {
+                                activity.currentValues.giveawaysModuleList.add(GiveawayModule())
+                                isDataChangedToRefresh.value = !isDataChangedToRefresh.value
+                            }
+                            else {
+                                Utilities.createCustomToast(activity.applicationContext, "Fill the last giveaway record first")
+                            }
                         }
                     }
                 }
-            }
 
-        },
-        content = {
-            Box {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(top = padding_8),
-                    verticalArrangement = Arrangement.spacedBy(padding_8)
-                ) {
-                    itemsIndexed(activity.currentValues.giveawaysModuleList) { index, item ->
-                        GiveawaysLazyColumnItem(activity, isDataChangedToRefresh, item, index)
+            },
+            content = {
+                Box {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = padding_8),
+                        verticalArrangement = Arrangement.spacedBy(padding_8)
+                    ) {
+                        itemsIndexed(activity.currentValues.giveawaysModuleList) { index, item ->
+                            GiveawaysLazyColumnItem(activity, isDataChangedToRefresh, item, index)
+                        }
                     }
                 }
             }
+        )
+    }
+    else if (!activity.currentValues.isDivisionSelected()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "Select Division first")
         }
-    )
+    }
+    else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "There is no Giveaways for this Division")
+        }
+    }
 }
 
 @Composable
@@ -74,7 +94,7 @@ fun GiveawaysLazyColumnItem(
     giveawayModule: GiveawayModule,
     index: Int
 ) {
-    val data = activity.currentValues.multipleList.filter { it.tableId == GIVEAWAY }
+    val data = activity.currentValues.getGiveawayList()
 
     val giveawayCurrentValue = remember { mutableStateOf(giveawayModule.giveawayCurrentValue) }
     val sampleCurrentValue = remember { mutableStateOf(giveawayModule.sampleCurrentValue) }

@@ -57,7 +57,7 @@ fun PlannedVisitUI(activity: PlannedVisitActivity, tabIndex: Int = -1) {
                         }
                         in 1..3 -> {
                             val tabDataList = activity.relationalPlannedVisit.filter {
-                                it.categoryId == tabIndex
+                                it.shiftId == tabIndex
                             }.toList()
 
                             PlannedVisitScreen(

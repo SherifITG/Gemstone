@@ -5,7 +5,6 @@ import com.itgates.ultra.pulpo.cira.dataStore.PreferenceKeys
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.AccountType
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
-import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Class
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
@@ -29,10 +28,10 @@ class AccountCurrentValues(private val activity: AccountsReportActivity) {
 
     companion object {
         // start values
-        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Division"))
-        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Brick"))
-        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Acc Type"))
-        val classStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Class"))
+        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Division"), UN_SELECTED, -2)
+        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Brick"), UN_SELECTED, -2)
+        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Acc Type"), UN_SELECTED, -2)
+        val classStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Class"), UN_SELECTED, -2)
     }
 
     var accountsDataListToShow: List<AccountData> = listOf()
@@ -42,7 +41,7 @@ class AccountCurrentValues(private val activity: AccountsReportActivity) {
     var divisionsList: List<Division> = listOf()
     var bricksList: List<Brick> = listOf()
     var accountTypesList: List<AccountType> = listOf()
-    var classesList: List<Class> = listOf()
+    var classesList: List<IdAndNameEntity> = listOf()
 
     // current values
     var divisionCurrentValue: IdAndNameObj = divisionStartValue
@@ -111,16 +110,16 @@ class AccountCurrentValues(private val activity: AccountsReportActivity) {
                 else {
                     listOf(brickCurrentValue.id)
                 }
-                val accTypeTables = if (accTypeCurrentValue.embedded.name == "All") {
-                    accountTypesList.stream().map { it.table }.toList()
+                val accTypeIds = if (accTypeCurrentValue.embedded.name == "All") {
+                    accountTypesList.stream().map { it.id.toInt() }.toList()
                 }
                 else {
-                    listOf((accTypeCurrentValue as AccountType).table)
+                    listOf(accTypeCurrentValue.id.toInt())
                 }
 
-                activity.loadClassesData(divIds, brickIds, accTypeTables)
+                activity.loadClassesData(divIds, brickIds, accTypeIds)
             }
-            is Class -> {
+            is IdAndNameEntity -> {
                 classCurrentValue = idAndNameObj
             }
         }

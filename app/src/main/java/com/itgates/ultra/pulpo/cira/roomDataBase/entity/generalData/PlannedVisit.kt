@@ -4,21 +4,24 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.TablesNames
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.MultiplicityEnum
 
 @Entity(tableName = TablesNames.PlannedVisitTable)
 data class PlannedVisit(
     @PrimaryKey val id: Long,
-    @ColumnInfo("div_id") val divisionId: Long,// change and the relational query
+    @ColumnInfo("line_id") val lineId: Long,
+    @ColumnInfo("div_id") val divisionId: Long,
+    @ColumnInfo("brick_id") val brickId: Long,
     @ColumnInfo("acc_type_id") val accountTypeId: Long,
-    @ColumnInfo("item_id") val itemId: Long,
-    @ColumnInfo("item_doctor_id") val itemDoctorId: Long,
-    @ColumnInfo("members") val members: Long,
+    @ColumnInfo("account_id") val accountId: Long,
+    @ColumnInfo("account_doctor_id") val accountDoctorId: Long,
+    @ColumnInfo("speciality_id") val specialityId: Long,
+    @ColumnInfo("acc_class") val accountClass: Long,
+    @ColumnInfo("doc_class") val doctorClass: Long,
+    @ColumnInfo("visit_type") val visitType: MultiplicityEnum,
     @ColumnInfo("visit_date") val visitDate: String,
     @ColumnInfo("visit_time") val visitTime: String,
-    @ColumnInfo("shift") val shift: Int,
-    @ColumnInfo("insertion_date") val insertionDate: String,
-    @ColumnInfo("user_id") val userId: Long,
-    @ColumnInfo("team_id") val teamId: Long,
     @ColumnInfo("is_done") val isDone: Boolean,
-    @ColumnInfo("related_id") val relatedId: Long
+    @ColumnInfo("shift") val shift: Int,
+    @ColumnInfo("user_id") val userId: Int, // todo
 )

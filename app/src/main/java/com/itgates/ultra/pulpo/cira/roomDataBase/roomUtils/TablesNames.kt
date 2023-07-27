@@ -3,7 +3,6 @@ package com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils
 object TablesNames {
     const val AccountTypeTable = "account_type_table"
     const val BrickTable = "brick_table"
-    const val ClassTable = "class_table"
     const val DivisionTable = "division_table"
     const val SettingTable = "setting_table"
     const val IdAndNameTable = "id_and_name_table"

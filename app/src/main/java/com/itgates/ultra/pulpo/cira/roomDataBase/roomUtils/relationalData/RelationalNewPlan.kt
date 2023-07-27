@@ -8,11 +8,11 @@ data class RelationalNewPlan(
     val firstLL: String,
     val firstLG: String,
     val divName: String,
-    val teamId: Long,
+    val lineId: Long,
     val brickName: String?,
     val brickId: Long,
     val accTypeName: String,
-    val categoryId: Int,
+    val shiftId: Int,
     val accName: String,
     val docName: String
 )

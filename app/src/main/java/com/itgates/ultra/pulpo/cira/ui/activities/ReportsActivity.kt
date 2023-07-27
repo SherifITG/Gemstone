@@ -47,27 +47,27 @@ class ReportsActivity : ComponentActivity() {
                                         startActivity(Intent(this@ReportsActivity, ProductsReportActivity::class.java))
                                     }
                                 }
-                                item {
-                                    ReportItemComposeView("Accounts", false, R.drawable.report_account_icon) {
-                                        startActivity(Intent(this@ReportsActivity, AccountsReportActivity::class.java))
-                                    }
-                                }
+//                                item {
+//                                    ReportItemComposeView("Accounts", false, R.drawable.report_account_icon) {
+//                                        startActivity(Intent(this@ReportsActivity, AccountsReportActivity::class.java))
+//                                    }
+//                                }
                                 item {
                                     ReportItemComposeView("Actual Visits", false, R.drawable.report_actual_visits_icon) {
                                         startActivity(Intent(this@ReportsActivity, ActualVisitReportActivity::class.java))
                                     }
                                 }
-                                item {
-                                    ReportItemComposeView("Planned Visits", false, R.drawable.report_planned_visits_icon) {
-                                        PassedValues.plannedActivity_isToday = false
-                                        startActivity(Intent(this@ReportsActivity, PlannedVisitActivity::class.java))
-                                    }
-                                }
-                                item {
-                                    ReportItemComposeView("New Plans", false, R.drawable.report_planned_visits_icon) {
-                                        startActivity(Intent(this@ReportsActivity, NewPlanReportActivity::class.java))
-                                    }
-                                }
+//                                item {
+//                                    ReportItemComposeView("Planned Visits", false, R.drawable.report_planned_visits_icon) {
+//                                        PassedValues.plannedActivity_isToday = false
+//                                        startActivity(Intent(this@ReportsActivity, PlannedVisitActivity::class.java))
+//                                    }
+//                                }
+//                                item {
+//                                    ReportItemComposeView("New Plans", false, R.drawable.report_planned_visits_icon) {
+//                                        startActivity(Intent(this@ReportsActivity, NewPlanReportActivity::class.java))
+//                                    }
+//                                }
                             }
                         }
                     }

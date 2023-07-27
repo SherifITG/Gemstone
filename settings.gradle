@@ -15,5 +15,5 @@ dependencyResolutionManagement {
 }
 
 //TODO company versions
-rootProject.name = "Pulpo Ultra ${settings.ext.project_name}"
+rootProject.name = "Gemstone ${settings.ext.project_name}"
 include ':app'

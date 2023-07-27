@@ -7,6 +7,6 @@ class AccountData (
     @Embedded val account: Account,
     val divName: String,
     val accTypeName: String,
-    val className: String?, // TODO nullable
+    val className: String?,
     val brickName: String?
 )

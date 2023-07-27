@@ -15,5 +15,5 @@ class DoctorPlanningData (
     val accName: String,
     val className: String?,
     val brickName: String?,
-    val catId: Int,
+    val shiftId: Int,
 )

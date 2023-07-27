@@ -94,7 +94,7 @@ class AccountsReportActivity : ComponentActivity() {
     }
 
     private fun loadDivisionData() {
-        cacheViewModel.loadActualUserDivisions()
+        cacheViewModel.loadUserDivisions()
     }
 
     fun loadBrickData(divIds: List<Long>) {
@@ -105,12 +105,11 @@ class AccountsReportActivity : ComponentActivity() {
         cacheViewModel.loadActualAccountTypes(divIds, brickIds)
     }
 
-    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeTables: List<String>) {
-        cacheViewModel.loadClassesData(divIds, brickIds, accTypeTables)
+    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeIds: List<Int>) {
+        cacheViewModel.loadClassesData(divIds, brickIds, accTypeIds)
     }
 
-    fun applyFilters(divId: Long, brickId: Long, classId: Long, accTypeTable: String) {
-        println(" 99999999999999999999999999999999 $divId 999 $brickId 999 $classId 999 $accTypeTable")
+    fun applyFilters(divId: Long, brickId: Long, classId: Long, accTypeId: Long) {
         var accountsFiltered = currentValues.accountsDataList
 
         // division filter step
@@ -129,8 +128,11 @@ class AccountsReportActivity : ComponentActivity() {
         }
 
         // account type filter step
-        if (accTypeTable != "crm_All") {
-            accountsFiltered = accountsFiltered.stream().filter { it.account.table == accTypeTable }.toList()
+        if (accTypeId != -1L) {
+            // todo change it.account.id to it.account.accTypeId
+//            accountsFiltered = accountsFiltered.stream().filter { it.account.table == accTypeTable }.toList()
+//            accountsFiltered = accountsFiltered.stream().filter { it.account.accTypeId == accTypeId }.toList()
+            accountsFiltered = accountsFiltered.stream().filter { it.account.id == accTypeId }.toList()
         }
 
         currentValues.accountsDataListToShow = accountsFiltered

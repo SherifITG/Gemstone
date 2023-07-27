@@ -24,6 +24,7 @@ import com.itgates.ultra.pulpo.cira.ui.theme.*
 import com.itgates.ultra.pulpo.cira.ui.utils.ManagerModule
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
 import com.itgates.ultra.pulpo.cira.R
+import com.itgates.ultra.pulpo.cira.ui.utils.ProductModule
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -32,38 +33,55 @@ fun ManagersScreen(activity: ActualActivity) {
     val isDataChangedToRefresh = remember { mutableStateOf(false) }
 
     println("-------------------------------------------------- >> ${isDataChangedToRefresh.value}")
-
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.Center,
-        floatingActionButton = {
-            if (!activity.currentValues.isAllManagerListIsPicked()) {
-                FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
-                    ButtonFactory(text = "Add Manager") {
-                        if (activity.currentValues.isAddingManagerIsAccepted()) {
-                            activity.currentValues.managersModuleList.add(ManagerModule())
-                            isDataChangedToRefresh.value = !isDataChangedToRefresh.value
+    if (activity.currentValues.isDivisionSelected() && !activity.currentValues.isManagerListEmpty()) {
+        Scaffold(
+            floatingActionButtonPosition = FabPosition.Center,
+            floatingActionButton = {
+                if (!activity.currentValues.isAllManagerListIsPicked()) {
+                    FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
+                        ButtonFactory(text = "Add Manager") {
+                            if (activity.currentValues.isAddingManagerIsAccepted()) {
+                                activity.currentValues.managersModuleList.add(ManagerModule())
+                                isDataChangedToRefresh.value = !isDataChangedToRefresh.value
+                            }
+                            else {
+                                Utilities.createCustomToast(activity.applicationContext, "Fill the last manager record first")
+                            }
                         }
-                        else {
-                            Utilities.createCustomToast(activity.applicationContext, "Fill the last manager record first")
+                    }
+                }
+
+            },
+            content = {
+                Box {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(padding_8)
+                    ) {
+                        itemsIndexed(activity.currentValues.managersModuleList) { index, item ->
+                            ManagersLazyColumnItem(activity, isDataChangedToRefresh, item, index)
                         }
                     }
                 }
             }
-
-        },
-        content = {
-            Box {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(padding_8)
-                ) {
-                    itemsIndexed(activity.currentValues.managersModuleList) { index, item ->
-                        ManagersLazyColumnItem(activity, isDataChangedToRefresh, item, index)
-                    }
-                }
-            }
+        )
+    }
+    else if (!activity.currentValues.isDivisionSelected()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "Select Division first")
         }
-    )
+    }
+    else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "There is no Managers for this Division")
+        }
+    }
 }
 
 @Composable
@@ -73,10 +91,7 @@ fun ManagersLazyColumnItem(
     managerModule: ManagerModule,
     index: Int
 ) {
-    var data = activity.currentValues.multipleList.filter { it.tableId == MANAGER }
-    // Remove System Administrator
-    data = data.filter { it.embedded.name != "System Administrator" }
-
+    val data = activity.currentValues.getManagerList()
     val currentValue = remember { mutableStateOf(managerModule.managerCurrentValue) }
     currentValue.value = managerModule.managerCurrentValue
 

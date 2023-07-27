@@ -1,7 +1,6 @@
 package com.itgates.ultra.pulpo.cira.ui.composeUI
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -118,7 +116,7 @@ fun VisitReportScreen(activity: ActualActivity, navController: NavHostController
                             }
                         }
                         else {
-                            if (!activity.currentValues.isUserManager()) {
+                            if (!activity.currentValues.isUserDivManager()) {
                                 item {
                                     TextFactory(
                                         "You must add 1 manager at least",

@@ -6,13 +6,11 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.generalData.NewPlanEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.AccountType
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
-import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Class
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.*
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.relationalData.AccountData
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.relationalData.DoctorData
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.relationalData.DoctorPlanningData
 import com.itgates.ultra.pulpo.cira.ui.activities.PlanningActivity
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
@@ -32,10 +30,10 @@ class PlanningCurrentValues(private val activity: PlanningActivity) {
 
     companion object {
         // start values
-        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Division"))
-        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Brick"))
-        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Acc Type"))
-        val classStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Class"))
+        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Division"), UN_SELECTED, -2)
+        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Brick"), UN_SELECTED, -2)
+        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Acc Type"), UN_SELECTED, -2)
+        val classStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Class"), UN_SELECTED, -2)
     }
 
     var accountsDataListToShow: List<AccountData> = listOf()
@@ -56,7 +54,7 @@ class PlanningCurrentValues(private val activity: PlanningActivity) {
     var bricksList: List<Brick> = listOf()
     var accountTypesList: List<AccountType> = listOf()
     var allAccountTypesList: List<AccountType> = listOf()
-    var classesList: List<Class> = listOf()
+    var classesList: List<IdAndNameEntity> = listOf()
 
     val selectedDoctors = ArrayList<DoctorPlanningData>()
     var selectedDoctorsStatus = HashMap<Int, Long>()
@@ -83,17 +81,17 @@ class PlanningCurrentValues(private val activity: PlanningActivity) {
 
     fun getDoctorListsMap(list: List<DoctorPlanningData>): Map<String, ArrayList<DoctorPlanningData>> {
         val dataMap: Map<String, ArrayList<DoctorPlanningData>> = allAccountTypesList.associate { accType ->
-            accType.table to ArrayList()
+            accType.embedded.name to ArrayList()
         }
         list.forEach {
-            dataMap[it.doctor.table]?.add(it)
+            dataMap[it.doctor.embedded.name]?.add(it)
         }
         return dataMap
     }
 
     fun distributeDoctorsList() {
         doctorsDataList.forEach {
-            when(it.catId) {
+            when(0) { // Todo when(it.shiftId)
                 1 -> {
                     pmDoctorsDataList.add(it)
                     pmDoctorsDataListToShow.add(it)
@@ -175,16 +173,16 @@ class PlanningCurrentValues(private val activity: PlanningActivity) {
                 else {
                     listOf(brickCurrentValue.id)
                 }
-                val accTypeTables = if (accTypeCurrentValue.embedded.name == "All") {
-                    accountTypesList.stream().map { it.table }.toList()
+                val accTypeIds = if (accTypeCurrentValue.embedded.name == "All") {
+                    accountTypesList.stream().map { it.id.toInt() }.toList()
                 }
                 else {
-                    listOf((accTypeCurrentValue as AccountType).table)
+                    listOf(accTypeCurrentValue.id.toInt())
                 }
 
-                activity.loadClassesData(divIds, brickIds, accTypeTables)
+                activity.loadClassesData(divIds, brickIds, accTypeIds)
             }
-            is Class -> {
+            is IdAndNameEntity -> {
                 classCurrentValue = idAndNameObj
             }
         }

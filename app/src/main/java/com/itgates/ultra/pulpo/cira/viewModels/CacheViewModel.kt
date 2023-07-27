@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.itgates.ultra.pulpo.cira.CoroutineManager
 import com.itgates.ultra.pulpo.cira.dataStore.DataStoreService
-import com.itgates.ultra.pulpo.cira.dataStore.PreferenceKeys
 import com.itgates.ultra.pulpo.cira.enumerations.CachingDataTackStatus
 import com.itgates.ultra.pulpo.cira.network.models.responseModels.responses.*
 import com.itgates.ultra.pulpo.cira.repository.OfflineDataRepo
@@ -37,8 +36,8 @@ class CacheViewModel @Inject constructor(
     val accountTypeData: LiveData<List<AccountType>> get() = _accountTypeData
     private val _allAccountTypeData = MutableLiveData<List<AccountType>>()
     val allAccountTypeData: LiveData<List<AccountType>> get() = _allAccountTypeData
-    private val _classesData = MutableLiveData<List<Class>>()
-    val classesData: LiveData<List<Class>> get() = _classesData
+    private val _classesData = MutableLiveData<List<IdAndNameEntity>>()
+    val classesData: LiveData<List<IdAndNameEntity>> get() = _classesData
     private val _accountData = MutableLiveData<List<Account>>()
     val accountData: LiveData<List<Account>> get() = _accountData
     private val _doctorData = MutableLiveData<List<Doctor>>()
@@ -119,10 +118,10 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeTables: List<String>) {
+    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeIds: List<Int>) {
         CoroutineManager.getScope().launch {
             try {
-                _classesData.value = offlineDataRepo.loadClassesData(divIds, brickIds, accTypeTables)
+                _classesData.value = offlineDataRepo.loadClassesData(divIds, brickIds, accTypeIds)
             } catch (e: Exception) {
                 _classesData.value = FaultedArrayList()
                 Log.d("CacheViewModel", "loadClassesData: failed $e")
@@ -130,12 +129,10 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun loadActualUserDivisions() {
+    fun loadUserDivisions() {
         CoroutineManager.getScope().launch {
             try {
-                _divisionData.value = offlineDataRepo.loadActualUserDivisions(
-                    dataStoreService.getDivisionsOrLinesList(PreferenceKeys.DIVISIONS_IDS)
-                )
+                _divisionData.value = offlineDataRepo.loadUserDivisions()
             } catch (e: Exception) {
                 _divisionData.value = FaultedArrayList()
                 Log.d("CacheViewModel", "loadActualUserDivisions: failed $e")
@@ -154,10 +151,10 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun loadIdAndNameTablesByTAblesListForActualActivity() {
+    fun loadIdAndNameTablesByTAblesListForActualActivity(lineId: Long) {
         CoroutineManager.getScope().launch {
             try {
-                _idAndNameEntityData.value = offlineDataRepo.loadIdAndNameTablesByTAblesListForActualActivity()
+                _idAndNameEntityData.value = offlineDataRepo.loadIdAndNameTablesByTAblesListForActualActivity(lineId)
             } catch (e: Exception) {
                 _idAndNameEntityData.value = FaultedArrayList()
                 Log.d("CacheViewModel", "loadIdAndNameTablesByTAblesListForActualActivity: failed $e")
@@ -165,6 +162,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadSlidesByPresentationId(presentationId: Long) {
         CoroutineManager.getScope().launch {
             try {
@@ -176,6 +174,8 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+
+    // Todo check later
     fun loadOfficeWorkTypes() {
         CoroutineManager.getScope().launch {
             try {
@@ -198,10 +198,11 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun loadActualAccounts(divId: Long, brickIds: List<Long>, table: String) {
+    // Todo check later
+    fun loadActualAccounts(lineId: Long, divId: Long, brickId: Long, accTypeId: Int) {
         CoroutineManager.getScope().launch {
             try {
-                _accountData.value = offlineDataRepo.loadActualAccounts(divId, brickIds, table)
+                _accountData.value = offlineDataRepo.loadActualAccounts(lineId, divId, brickId, accTypeId)
             } catch (e: Exception) {
                 _accountData.value = FaultedArrayList()
                 Log.d("CacheViewModel", "loadActualAccounts: failed $e")
@@ -209,10 +210,11 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun loadActualDoctors(accountId: Long, table: String) {
+    // Todo check later
+    fun loadActualDoctors(lindId: Long, accountId: Long, accTypeId: Int) {
         CoroutineManager.getScope().launch {
             try {
-                _doctorData.value = offlineDataRepo.loadActualDoctors(accountId, table)
+                _doctorData.value = offlineDataRepo.loadActualDoctors(lindId, accountId, accTypeId)
             } catch (e: Exception) {
                 _doctorData.value = FaultedArrayList()
                 Log.d("CacheViewModel", "loadActualDoctors: failed $e")
@@ -220,6 +222,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadPresentations() {
         CoroutineManager.getScope().launch {
             try {
@@ -231,6 +234,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadUnSyncedActualVisits() {
         CoroutineManager.getScope().launch {
             try {
@@ -242,6 +246,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadUnSyncedNewPlans() {
         CoroutineManager.getScope().launch {
             try {
@@ -253,6 +258,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadRelationalPlannedVisits(isTodayFilter: Boolean) {
         CoroutineManager.getScope().launch {
             try {
@@ -269,6 +275,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadRelationalNewPlans() {
         CoroutineManager.getScope().launch {
             try {
@@ -280,6 +287,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadRelationalPlannedOfficeWorks(isTodayFilter: Boolean) {
         CoroutineManager.getScope().launch {
             try {
@@ -296,6 +304,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun markPlannedVisitAsDone(doneId: Long) {
         CoroutineManager.getScope().launch {
             try {
@@ -307,6 +316,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadRelationalActualVisits() {
         CoroutineManager.getScope().launch {
             try {
@@ -318,6 +328,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadRelationalOfficeWorkReportsData() {
         CoroutineManager.getScope().launch {
             try {
@@ -329,6 +340,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadAllAccountReportData() {
         CoroutineManager.getScope().launch {
             try {
@@ -340,16 +352,23 @@ class CacheViewModel @Inject constructor(
         }
     }
 
-    fun updateAccountLocation(llFirst: String, lgFirst: String, id: Long) {
+    // Todo check later
+    fun updateAccountLocation(
+        llFirst: String, lgFirst: String,
+        id: Long, accTypeId: Int, lineId: Long, divId: Long, brickId: Long
+    ) {
         CoroutineManager.getScope().launch {
             try {
-                offlineDataRepo.updateAccountLocation(llFirst, lgFirst, id)
+                offlineDataRepo.updateAccountLocation(
+                    llFirst, lgFirst, id, accTypeId, lineId, divId, brickId
+                )
             } catch (e: Exception) {
                 Log.d("CacheViewModel", "updateAccountLocation: failed $e")
             }
         }
     }
 
+    // Todo check later
     fun loadAllDoctorReportData() {
         CoroutineManager.getScope().launch {
             try {
@@ -361,6 +380,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadAllDoctorPlanningData() {
         CoroutineManager.getScope().launch {
             try {
@@ -372,6 +392,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun uploadedActualVisitData(actualVisitDTO: ActualVisitDTO) {
         CoroutineManager.getScope().launch {
             try {
@@ -383,6 +404,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun uploadedNewPlanData(newPlanDTO: NewPlanDTO) {
         CoroutineManager.getScope().launch {
             try {
@@ -394,6 +416,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun insertActualVisitWithValidation(actualVisit: ActualVisit) {
         CoroutineManager.getScope().launch {
             try {
@@ -426,6 +449,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun saveAccountAndDoctorData(
         accountsAndDoctorsDetailsPharmaResponse: AccountsAndDoctorsDetailsPharmaResponse,
         withTrack: BaseDataActivity? = null
@@ -447,6 +471,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun savePresentationAndSlideData(
         presentationsAndSlidesDetailsPharmaResponse: PresentationsAndSlidesDetailsPharmaResponse,
         withTrack: BaseDataActivity? = null
@@ -468,6 +493,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun savePlannedVisitData(
         plannedVisitsPharmaResponse: PlannedVisitsPharmaResponse,
         withTrack: BaseDataActivity? = null
@@ -489,6 +515,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun saveOfflineLog(offlineLog: OfflineLog) {
         CoroutineManager.getScope().launch {
             try {
@@ -499,6 +526,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun saveOfflineLoc(offlineLoc: OfflineLoc) {
         CoroutineManager.getScope().launch {
             try {
@@ -509,6 +537,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun saveNewPlans(newPlanList: List<NewPlanEntity>) {
         CoroutineManager.getScope().launch {
             try {
@@ -520,6 +549,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun uploadedOfflineLogs(offlineLogDTO: OfflineRecordDTO) {
         CoroutineManager.getScope().launch {
             try {
@@ -530,6 +560,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun uploadedOfflineLocations(offlineLocDTO: OfflineRecordDTO) {
         CoroutineManager.getScope().launch {
             try {
@@ -540,6 +571,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadUnSyncedOfflineLogs() {
         CoroutineManager.getScope().launch {
             try {
@@ -551,6 +583,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun loadUnSyncedOfflineLocations() {
         CoroutineManager.getScope().launch {
             try {
@@ -580,6 +613,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun clearAccountAndDoctorData(withTrack: BaseDataActivity? = null) {
         CoroutineManager.getScope().launch {
             try {
@@ -598,6 +632,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun clearPresentationAndSlideData(withTrack: BaseDataActivity? = null) {
         CoroutineManager.getScope().launch {
             try {
@@ -618,6 +653,7 @@ class CacheViewModel @Inject constructor(
         }
     }
 
+    // Todo check later
     fun clearPlannedVisitData(withTrack: BaseDataActivity? = null) {
         CoroutineManager.getScope().launch {
             try {

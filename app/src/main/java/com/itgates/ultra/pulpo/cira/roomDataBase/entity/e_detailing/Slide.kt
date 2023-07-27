@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.TablesNames
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.tablesEnums.AccountColumns
 
 @Entity(tableName = TablesNames.SlideTable)
 data class Slide(

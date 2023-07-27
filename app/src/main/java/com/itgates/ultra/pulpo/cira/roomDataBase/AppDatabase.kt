@@ -12,7 +12,7 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.*
 
 @Database(
     entities = [
-        IdAndNameEntity::class, AccountType::class, Brick::class, Class::class, Division::class,
+        IdAndNameEntity::class, AccountType::class, Brick::class, Division::class,
         Setting::class, Account::class, Doctor::class, ActualVisit::class, PlannedVisit::class,
         OfflineLog::class, OfflineLoc::class, Presentation::class, Slide::class,
         NewPlanEntity::class
@@ -24,7 +24,6 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.*
 abstract class AppDatabase: RoomDatabase() {
     abstract fun accountTypeDao(): AccountTypeDao
     abstract fun brickDao(): BrickDao
-    abstract fun classDao(): ClassDao
     abstract fun divisionDao(): DivisionDao
     abstract fun settingDao(): SettingDao
     abstract fun idAndNameDao(): IdAndNameDao

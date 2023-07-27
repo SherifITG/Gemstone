@@ -27,6 +27,7 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.generalData.Doctor
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.AccountType
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.MultiplicityEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.SettingEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.ShiftEnum
@@ -54,7 +55,7 @@ class ActualActivity : ComponentActivity() {
     private val cacheViewModel: CacheViewModel by viewModels()
     var currentValues = ActualCurrentValues(this@ActualActivity)
     private val dataStateFlow = MutableStateFlow(DataStatus.LOADING)
-    val isRoomDataFetchedToRefresh = MutableStateFlow(false)
+    val isRoomDataFetchedToRefresh = MutableStateFlow(0)
     private var actualVisit: ActualVisit? = null
     private var visitDeviation: Long? = null
     val isPlanned = actualActivity_isPlannedVisit
@@ -140,7 +141,11 @@ class ActualActivity : ComponentActivity() {
                 cacheViewModel.updateAccountLocation(
                     currentValues.startLocation!!.latitude.toString(),
                     currentValues.startLocation!!.longitude.toString(),
-                    currentValues.accountCurrentValue.id
+                    currentValues.accountCurrentValue.id,
+                    (currentValues.accountCurrentValue as Account).accountTypeId,
+                    (currentValues.accountCurrentValue as Account).lineId,
+                    (currentValues.accountCurrentValue as Account).divisionId,
+                    (currentValues.accountCurrentValue as Account).brickId,
                 )
             }
 
@@ -204,9 +209,10 @@ class ActualActivity : ComponentActivity() {
 
         this.actualVisit = ActualVisit(
             divId = currentValues.divisionCurrentValue.id,
+            brickId = currentValues.brickCurrentValue.id,
             accountTypeId = currentValues.accTypeCurrentValue.id.toInt(),
-            itemId = currentValues.accountCurrentValue.id,
-            itemDoctorId = currentValues.doctorCurrentValue.id,
+            accountId = currentValues.accountCurrentValue.id,
+            accountDoctorId = currentValues.doctorCurrentValue.id,
             noOfDoctor = currentValues.noOfDoctorCurrentValue.id.toInt(),
             plannedVisitId =
                 if (actualActivity_isPlannedVisit)
@@ -224,17 +230,14 @@ class ActualActivity : ComponentActivity() {
             endDate = GlobalFormats.getDashedDate(Locale.getDefault(), currentValues.endDate!!),
             endTime = GlobalFormats.getFullTime(Locale.getDefault(), currentValues.endDate!!),
             shift =
-                when ((currentValues.accTypeCurrentValue as AccountType).catId) {
-                    1 -> ShiftEnum.PM_SHIFT
-                    2 -> ShiftEnum.AM_SHIFT
-                    3 -> ShiftEnum.OTHER
+                when ((currentValues.accTypeCurrentValue as AccountType).shiftId) {
+                    ShiftEnum.AM_SHIFT.index.toInt() -> ShiftEnum.AM_SHIFT
+                    ShiftEnum.PM_SHIFT.index.toInt() -> ShiftEnum.AM_SHIFT
+                    ShiftEnum.OTHER.index.toInt() -> ShiftEnum.OTHER
                     else -> { ShiftEnum.OTHER }
                 },
-            comments = "", //"NEW_APP",
-            insertionDate = "",
-            insertionTime = "",
             userId = currentValues.userId,
-            teamId = (currentValues.divisionCurrentValue as Division).teamId!!.toLong(),
+            lineId = (currentValues.divisionCurrentValue as Division).lineId,
             llStart = actualActivity_startLocation!!.latitude,
             lgStart = actualActivity_startLocation!!.longitude,
             llEnd = currentValues.endLocation!!.latitude,
@@ -244,7 +247,6 @@ class ActualActivity : ComponentActivity() {
             isSynced = false,
             syncDate = "",
             syncTime = "",
-            addedDate = GlobalFormats.getDashedDate(Locale.getDefault(), Date()),
             multipleListsInfo = RoomMultipleListsModule(
                 currentValues.productsModuleList.stream().map {
                     RoomProductModule(it)
@@ -266,36 +268,49 @@ class ActualActivity : ComponentActivity() {
             currentValues.settingMap = it.associate { setting ->
                 setting.embedded.name to setting.value.toInt()
             }
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
-
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.divisionData.observe(this@ActualActivity) {
-            currentValues.divisionsList = it
+            currentValues.divisionsList = it.sortedBy { division -> division.embedded.name }
             dataStateFlow.value = DataStatus.DONE
         }
         cacheViewModel.brickData.observe(this@ActualActivity) {
-            currentValues.bricksList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+            currentValues.bricksList = it.sortedBy { brick -> brick.embedded.name }
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.accountTypeData.observe(this@ActualActivity) {
             currentValues.accountTypesList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.accountData.observe(this@ActualActivity) {
-            currentValues.accountsList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+            currentValues.accountsList = it.sortedBy { account -> account.embedded.name }
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.doctorData.observe(this@ActualActivity) {
-            currentValues.doctorsList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+            currentValues.doctorsList = it.sortedBy { doctor -> doctor.embedded.name }
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
-        cacheViewModel.idAndNameEntityData.observe(this@ActualActivity) {
-            currentValues.multipleList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+        cacheViewModel.idAndNameEntityData.observe(this@ActualActivity) { list ->
+            currentValues.multipleList = list
+            currentValues.managersList = list.filter {
+                it.tableId == IdAndNameTablesNamesEnum.MANAGER
+            }.filter {
+                it.embedded.name != "System Administrator"
+            }
+            currentValues.giveawaysList = list.filter {
+                it.tableId == IdAndNameTablesNamesEnum.GIVEAWAY
+            }
+            currentValues.productsList = list.filter {
+                it.tableId == IdAndNameTablesNamesEnum.PRODUCT
+            }
+            currentValues.feedbacksList = list.filter {
+                it.tableId == IdAndNameTablesNamesEnum.FEEDBACK
+            }
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.presentationData.observe(this@ActualActivity) {
             currentValues.presentationList = it
-            isRoomDataFetchedToRefresh.value = !isRoomDataFetchedToRefresh.value
+            isRoomDataFetchedToRefresh.value = (isRoomDataFetchedToRefresh.value + 1) % 5
         }
         cacheViewModel.actualVisitStatus.observe(this@ActualActivity) {
             if (it > 0) {
@@ -331,7 +346,6 @@ class ActualActivity : ComponentActivity() {
 
     private fun loadMandatoryData() {
         loadSettingsData()
-        loadIdAndNameEntityData()
         loadPresentationData()
         if (!isPlanned) {
             loadDivisionData()
@@ -343,11 +357,11 @@ class ActualActivity : ComponentActivity() {
     }
 
     private fun loadDivisionData() {
-        cacheViewModel.loadActualUserDivisions()
+        cacheViewModel.loadUserDivisions()
     }
 
-    private fun loadIdAndNameEntityData() {
-        cacheViewModel.loadIdAndNameTablesByTAblesListForActualActivity()
+    fun loadIdAndNameEntityData(lineId: Long) {
+        cacheViewModel.loadIdAndNameTablesByTAblesListForActualActivity(lineId)
     }
 
     fun loadBrickData(divId: Long) {
@@ -358,12 +372,12 @@ class ActualActivity : ComponentActivity() {
         cacheViewModel.loadActualAccountTypes(listOf(divId), listOf(brickId))
     }
 
-    fun loadAccountData(divId: Long, brickId: Long, table: String) {
-        cacheViewModel.loadActualAccounts(divId, listOf(brickId), table)
+    fun loadAccountData(lineId: Long, divId: Long, brickId: Long, accTypeId: Int) {
+        cacheViewModel.loadActualAccounts(lineId, divId, brickId, accTypeId)
     }
 
-    fun loadDoctorData(accountId: Long, table: String) {
-        cacheViewModel.loadActualDoctors(accountId, table)
+    fun loadDoctorData(lineId: Long, accountId: Long, accTypeId: Int) {
+        cacheViewModel.loadActualDoctors(lineId, accountId, accTypeId)
     }
 
     fun loadPresentationData() {
@@ -372,39 +386,42 @@ class ActualActivity : ComponentActivity() {
 
     private fun prepareDataForPlanned() {
         if (isPlanned) {
-            currentValues.divisionCurrentValue = Division(
-                passedPlannedVisit!!.plannedVisit.divisionId, EmbeddedEntity(passedPlannedVisit.divName),
-                passedPlannedVisit.teamId.toString(), "", "", "",
-                "", "", ""
+            currentValues.divisionsList = listOf(
+                Division(
+                    passedPlannedVisit!!.plannedVisit.divisionId, EmbeddedEntity(passedPlannedVisit.divName),
+                    passedPlannedVisit.lineId, passedPlannedVisit.lineId, passedPlannedVisit.notDivManager, ""
+                )
             )
+            currentValues.divisionCurrentValue = currentValues.divisionsList.first()
             currentValues.brickCurrentValue = if (passedPlannedVisit.brickId > 0) {
                 Brick(
                     passedPlannedVisit.brickId, EmbeddedEntity(passedPlannedVisit.brickName.toString()),
-                    passedPlannedVisit.teamId.toString(), ""
+                    passedPlannedVisit.lineId.toString(), ""
                 )
             }
             else {
                 Brick(
                     passedPlannedVisit.brickId, EmbeddedEntity("All Bricks"),
-                    passedPlannedVisit.teamId.toString(), ""
+                    passedPlannedVisit.lineId.toString(), ""
                 )
             }
             currentValues.accTypeCurrentValue = AccountType(
                 passedPlannedVisit.plannedVisit.accountTypeId, EmbeddedEntity(passedPlannedVisit.accTypeName),
-                "", "", "", passedPlannedVisit.categoryId
+                0, passedPlannedVisit.shiftId
             )
             currentValues.accountCurrentValue = Account(
-                passedPlannedVisit.plannedVisit.itemId, EmbeddedEntity(passedPlannedVisit.accName),
-                passedPlannedVisit.teamId, 0L, 0L,
-                passedPlannedVisit.firstLL,passedPlannedVisit.firstLG,
-                0L, 0L, "", "", "", ""
+                passedPlannedVisit.plannedVisit.accountId, EmbeddedEntity(passedPlannedVisit.accName),
+                passedPlannedVisit.lineId, 0L, 0L,
+                0L, 0, "", "", "", "",
+                passedPlannedVisit.firstLL, passedPlannedVisit.firstLG
             )
             currentValues.doctorCurrentValue = Doctor(
-                passedPlannedVisit.plannedVisit.itemDoctorId, EmbeddedEntity(passedPlannedVisit.docName),
-                0L, 0L, "", "",0L,
-                0L, 0L, "", "", 0, ""
+                passedPlannedVisit.plannedVisit.accountDoctorId, EmbeddedEntity(passedPlannedVisit.docName),
+                passedPlannedVisit.lineId, 0L, 0, "","",
+                0L, 0L, ""
             )
             dataStateFlow.value = DataStatus.DONE
+            loadIdAndNameEntityData(passedPlannedVisit.lineId)
         }
     }
 

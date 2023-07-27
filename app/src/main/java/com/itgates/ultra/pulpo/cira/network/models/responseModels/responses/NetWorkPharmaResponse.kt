@@ -4,21 +4,28 @@ import com.google.gson.annotations.SerializedName
 import com.itgates.ultra.pulpo.cira.network.models.responseModels.responses.*
 
 data class LoginPharmaResponse(
-    @SerializedName("Data") val Data: ArrayList<UserDetailsData>,
+//    @SerializedName("Data") val Data: UserTokenData,
+    val access_token: String,
+    @SerializedName("message") val Status_Message: String,
+    val Status: Int
+)
+
+data class UserPharmaResponse(
+    @SerializedName("user") val user: UserDetailsData,
     val Status_Message: String,
     val Status: Int
 )
 
 data class MasterDataPharmaResponse(
-    @SerializedName("Data") val Data: OnlineMasterData,
-    val Status_Message: String,
-    val Status: Int
+    @SerializedName("data") var data: OnlineMasterData,
+    val Status_Message: String?,
+    val Status: Int?
 )
 
 data class AccountsAndDoctorsDetailsPharmaResponse(
-    @SerializedName("Data") val Data: OnlineAccountsAndDoctorsData,
-    val Status_Message: String,
-    val Status: Int
+    @SerializedName("data") val Data: OnlineAccountsAndDoctorsData,
+    val Status_Message: String?,
+    val Status: Int?
 )
 
 data class PresentationsAndSlidesDetailsPharmaResponse(
@@ -28,15 +35,15 @@ data class PresentationsAndSlidesDetailsPharmaResponse(
 )
 
 data class PlannedVisitsPharmaResponse(
-    @SerializedName("Data") val Data: ArrayList<OnlinePlannedVisitData>,
-    val Status_Message: String,
-    val Status: Int
+    @SerializedName("data") val Data: ArrayList<OnlinePlannedVisitData>,
+    val Status_Message: String?,
+    val Status: Int?
 )
 
 data class ActualVisitPharmaResponse(
-    @SerializedName("Data") val Data: List<ActualVisitDTO>,
-    val Status_Message: String,
-    val Status: Int
+    @SerializedName("data") val Data: List<ActualVisitDTO>,
+    val Status_Message: String?,
+    val Status: Int?
 )
 
 data class NewPlanPharmaResponse(

@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.TablesNames
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.tablesEnums.AccountColumns
 
 @Entity(tableName = TablesNames.PresentationTable)
 data class Presentation(
@@ -16,7 +15,7 @@ data class Presentation(
     @ColumnInfo("description") val description: String,
     @ColumnInfo("active") val active: Int,
     @ColumnInfo("product_id") val productId: Long,
-    @ColumnInfo("team_id") val teamId: Long,
+    @ColumnInfo("line_id") val lineId: Long,
     @ColumnInfo("product_name") val productName: String,
     @ColumnInfo("structure") val structure: String,
 ): IdAndNameObj(id, embedded)

@@ -24,14 +24,14 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.AccountType
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
+import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum
 import com.itgates.ultra.pulpo.cira.ui.activities.AccountsReportActivity
 import com.itgates.ultra.pulpo.cira.ui.theme.*
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
 import java.util.ArrayList
 import kotlin.streams.toList
-import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Class
-import com.itgates.ultra.pulpo.cira.ui.activities.PlanningActivity
 
 @Composable
 fun AccountReportUI(activity: AccountsReportActivity) {
@@ -145,7 +145,7 @@ fun AccountReportScreen(
                                             activity.currentValues.divisionCurrentValue.id,
                                             activity.currentValues.brickCurrentValue.id,
                                             activity.currentValues.classCurrentValue.id,
-                                            (activity.currentValues.accTypeCurrentValue as AccountType).table
+                                            activity.currentValues.accTypeCurrentValue.id
                                         )
                                         isDataChangedToRefresh.value = !isDataChangedToRefresh.value
                                     }
@@ -192,7 +192,7 @@ fun AccountReportScreen(
                                             append("${item.account.embedded.name}: ")
                                         }
                                         withStyle(style = SpanStyle(ITGatesSecondaryColor)) {
-                                            append("(${item.accTypeName})")
+                                            append("(${"item.accTypeName"})")
                                         }
                                     },
                                     size = 17.sp
@@ -208,7 +208,9 @@ fun AccountReportScreen(
                                     visible = isExpanded.value == index
                                 ) {
                                     val doctors = activity.currentValues.doctorsDataList.stream().filter {
-                                        it.doctor.accountId == item.account.id && it.doctor.table == item.account.table // TODO
+                                        it.doctor.accountId == item.account.id &&
+                                        it.doctor.accountTypeId == item.account.accountTypeId &&
+                                        it.doctor.lineId == item.account.lineId
                                     }.toList()
                                     Column() {
                                         TextFactory(text = "Division: ${item.divName}")
@@ -309,18 +311,23 @@ fun SelectableDropDownMenu(
                     if (data.isNotEmpty()) {
                         when(data[0]) {
                             is Division -> dataArrayList.add(
-                                0, Division(-1L, EmbeddedEntity("All"), "", "",
-                                "", "", "", "", "")
+                                0, Division(-1L, EmbeddedEntity("All"), 0, 0,
+                                0, "")
                             )
                             is Brick -> dataArrayList.add(
                                 0, Brick(-1L, EmbeddedEntity("All"), "", "")
                             )
                             is AccountType -> dataArrayList.add(
-                                0, AccountType(-1L, EmbeddedEntity("All"), "crm_All",
-                                    "", "", 0)
+                                0, AccountType(-1L, EmbeddedEntity("All"), 0, 0)
                             )
-                            is Class -> dataArrayList.add(
-                                0, Class(-1L, EmbeddedEntity("All"), 0)
+                            is IdAndNameEntity -> dataArrayList.add(
+                                0,
+                                IdAndNameEntity(
+                                    -1L,
+                                    EmbeddedEntity("All"),
+                                    IdAndNameTablesNamesEnum.CLASS,
+                                    0
+                                )
                             )
                         }
                     }

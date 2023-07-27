@@ -21,7 +21,7 @@ class OfficeWorkCurrentValues(private val activity: OfficeWorkActivity) {
 
     companion object {
         // start values
-        val officeWorkStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Office Work"))
+        val officeWorkStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Office Work"), UN_SELECTED, -2)
 
         // texts start values
         const val commentStartValue = ""
@@ -37,8 +37,8 @@ class OfficeWorkCurrentValues(private val activity: OfficeWorkActivity) {
 //    var settingMap: Map<String, Int> = mapOf()
     var officeWorkList: List<IdAndNameEntity> = listOf()
     val shiftList: List<IdAndNameEntity> = listOf(
-        IdAndNameEntity(ShiftEnum.AM_SHIFT.index.toLong(), SHIFT, EmbeddedEntity(ShiftEnum.AM_SHIFT.text)),
-        IdAndNameEntity(ShiftEnum.PM_SHIFT.index.toLong(), SHIFT, EmbeddedEntity(ShiftEnum.PM_SHIFT.text))
+        IdAndNameEntity(ShiftEnum.AM_SHIFT.index.toLong(), EmbeddedEntity(ShiftEnum.AM_SHIFT.text), SHIFT, -2),
+        IdAndNameEntity(ShiftEnum.PM_SHIFT.index.toLong(), EmbeddedEntity(ShiftEnum.PM_SHIFT.text), SHIFT, -2)
     )
 
     // current values

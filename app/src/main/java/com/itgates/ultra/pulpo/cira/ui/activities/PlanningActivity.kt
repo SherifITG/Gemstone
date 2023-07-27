@@ -121,7 +121,7 @@ class PlanningActivity : ComponentActivity() {
     }
 
     private fun loadDivisionData() {
-        cacheViewModel.loadActualUserDivisions()
+        cacheViewModel.loadUserDivisions()
     }
 
     fun loadBrickData(divIds: List<Long>) {
@@ -136,22 +136,23 @@ class PlanningActivity : ComponentActivity() {
         cacheViewModel.loadAllAccountTypes()
     }
 
-    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeTables: List<String>) {
-        cacheViewModel.loadClassesData(divIds, brickIds, accTypeTables)
+    fun loadClassesData(divIds: List<Long>, brickIds: List<Long>, accTypeIds: List<Int>) {
+        cacheViewModel.loadClassesData(divIds, brickIds, accTypeIds)
     }
 
     fun saveNewPlans(visitDate: String) {
         val newPlanList = currentValues.selectedDoctors.stream().map {
             currentValues.createNewPlanInstance(
-                it.divId, it.accTypeId, it.doctor.accountId,
-                it.doctor.id, 0, visitDate, 0, it.doctor.teamId
+                it.divId, 0, // Todo it.accTypeId,
+                it.doctor.accountId,
+                it.doctor.id, 0, visitDate, 0, it.doctor.lineId
             )
         }.toList()
         cacheViewModel.saveNewPlans(newPlanList)
     }
 
-    fun applyFilters(divId: Long, brickId: Long, classId: Long, accTypeTable: String, category: Int) {
-        var doctorsFiltered = when(category) {
+    fun applyFilters(divId: Long, brickId: Long, classId: Long, accTypeId: Int, shift: Int) {
+        var doctorsFiltered = when(shift) {
             1 -> currentValues.pmDoctorsDataList
             2 -> currentValues.amDoctorsDataList
             3 -> currentValues.otherDoctorsDataList
@@ -186,15 +187,15 @@ class PlanningActivity : ComponentActivity() {
         }
 
         // account type filter step
-        if (accTypeTable != "crm_All") {
+        if (accTypeId != -1) {
             doctorsFiltered = ArrayList(
                 doctorsFiltered.stream().filter {
-                    it.doctor.table == accTypeTable
+                    it.doctor.accountTypeId == accTypeId
                 }.toList()
             )
         }
 
-        when(category) {
+        when(shift) {
             1 -> currentValues.pmDoctorsDataListToShow = doctorsFiltered
             2 -> currentValues.amDoctorsDataListToShow = doctorsFiltered
             3 -> currentValues.otherDoctorsDataListToShow = doctorsFiltered

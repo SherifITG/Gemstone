@@ -11,8 +11,7 @@ android {
 
     defaultConfig {
         //TODO company versions
-//        applicationId "com.itgates.ultra.pulpo.cira"
-        applicationId "com.itgates.ultra.pulpo.${project.findProperty("project_package_name_postfix")}"
+        applicationId "com.itgates.gemstone.${project.findProperty("project_package_name_postfix")}"
         minSdk 26
         targetSdk 33
         versionCode 4
@@ -25,7 +24,7 @@ android {
 
         buildConfigField("String", "API_LINK", "\"${project.findProperty("api_link")}\"")
         applicationVariants.all { variant ->
-            variant.resValue "string", "project_name", "Pulpo Ultra ${project.property('project_name')}"
+            variant.resValue "string", "project_name", "Gemstone ${project.property('project_name')}"
             variant.resValue "string", "BASE_URL_PHARMA", "${project.property('api_link')}"
         }
 }

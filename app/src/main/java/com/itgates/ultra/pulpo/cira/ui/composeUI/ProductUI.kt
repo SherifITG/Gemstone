@@ -28,11 +28,12 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEnti
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.GIVEAWAY
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.PRODUCT
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.MANAGER
-import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.COMMENT
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.FEEDBACK
 import com.itgates.ultra.pulpo.cira.ui.activities.ActualActivity
 import com.itgates.ultra.pulpo.cira.ui.activities.DetailingActivity
 import com.itgates.ultra.pulpo.cira.ui.theme.*
 import com.itgates.ultra.pulpo.cira.ui.utils.ActualCurrentValues
+import com.itgates.ultra.pulpo.cira.ui.utils.GiveawayModule
 import com.itgates.ultra.pulpo.cira.ui.utils.ProductModule
 import com.itgates.ultra.pulpo.cira.utilities.PassedValues
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
@@ -44,36 +45,55 @@ fun ProductsScreen(activity: ActualActivity) {
     val isDataChangedToRefresh = remember { mutableStateOf(false) }
     println("-------------------------------------------------- >> ${isDataChangedToRefresh.value}")
 
-    Scaffold(
-        floatingActionButtonPosition = FabPosition.Center,
-        floatingActionButton = {
-            if (!activity.currentValues.isAllProductListIsPicked()) {
-                FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
-                    ButtonFactory(text = "Add Product") {
-                        if (activity.currentValues.isAddingProductIsAccepted()) {
-                            activity.currentValues.productsModuleList.add(ProductModule())
-                            isDataChangedToRefresh.value = !isDataChangedToRefresh.value
+    if (activity.currentValues.isDivisionSelected() && !activity.currentValues.isProductListEmpty()) {
+        Scaffold(
+            floatingActionButtonPosition = FabPosition.Center,
+            floatingActionButton = {
+                if (!activity.currentValues.isAllProductListIsPicked()) {
+                    FloatingActionButton(onClick = { /* TODO -> handled below */ }) {
+                        ButtonFactory(text = "Add Product") {
+                            if (activity.currentValues.isAddingProductIsAccepted()) {
+                                activity.currentValues.productsModuleList.add(ProductModule())
+                                isDataChangedToRefresh.value = !isDataChangedToRefresh.value
+                            }
+                            else {
+                                Utilities.createCustomToast(activity.applicationContext, "Fill the last product record first")
+                            }
                         }
-                        else {
-                            Utilities.createCustomToast(activity.applicationContext, "Fill the last product record first")
+                    }
+                }
+            },
+            content = {
+                Box {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(padding_8)
+                    ) {
+                        itemsIndexed(activity.currentValues.productsModuleList) { index, item ->
+                            ProductsLazyColumnItem(activity, isDataChangedToRefresh, item, index)
                         }
                     }
                 }
             }
-        },
-        content = {
-            Box {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(padding_8)
-                ) {
-                    itemsIndexed(activity.currentValues.productsModuleList) { index, item ->
-                        ProductsLazyColumnItem(activity, isDataChangedToRefresh, item, index)
-                    }
-                }
-            }
+        )
+    }
+    else if (!activity.currentValues.isDivisionSelected()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "Select Division first")
         }
-    )
+    }
+    else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            TextFactory(text = "There is no Products for this Division")
+        }
+    }
+
 
 }
 
@@ -84,8 +104,8 @@ fun ProductsLazyColumnItem(
     productModule: ProductModule,
     index: Int
 ) {
-    val productData = activity.currentValues.multipleList.filter { it.tableId == PRODUCT }
-    val commentData = activity.currentValues.multipleList.filter { it.tableId == COMMENT }
+    val productData = activity.currentValues.getProductList()
+    val commentData = activity.currentValues.getFeedbackList()
 
     val productCurrentValue = remember { mutableStateOf(productModule.productCurrentValue) }
     val sampleCurrentValue = remember { mutableStateOf(productModule.sampleCurrentValue) }

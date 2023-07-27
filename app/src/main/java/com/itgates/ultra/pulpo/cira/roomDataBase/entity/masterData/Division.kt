@@ -12,11 +12,8 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.TablesNames
 data class Division(
     @PrimaryKey override val id: Long,
     @Embedded(prefix = "embedded_division_") override val embedded: EmbeddedEntity,
-    @ColumnInfo(name = "team_id") val teamId: String?,
-    @ColumnInfo(name = "parent_id") val parentId: String?,
-    @ColumnInfo(name = "type_id") val typeId: String?,
-    @ColumnInfo(name = "date_from") val dateFrom: String?,
-    @ColumnInfo(name = "date_to") val dateTo: String?,
-    @ColumnInfo(name = "sorting") val sorting: String?,
-    @ColumnInfo(name = "related_id") val relatedId: String?
+    @ColumnInfo(name = "line_id") val lineId: Long,
+    @ColumnInfo(name = "type_id") val typeId: Long,
+    @ColumnInfo(name = "not_manager") val notManager: Int,
+    @ColumnInfo(name = "url") val url: String,
 ): IdAndNameObj(id, embedded)

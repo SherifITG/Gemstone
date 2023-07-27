@@ -106,7 +106,6 @@ class PlannedVisitActivity : ComponentActivity() {
             )
         }
         else {
-
             if (Utilities.isAutomaticTimeEnabled(applicationContext)) {
                 PassedValues.actualActivity_isPlannedVisit = true
                 PassedValues.actualActivity_PlannedVisitObj = plannedVisit

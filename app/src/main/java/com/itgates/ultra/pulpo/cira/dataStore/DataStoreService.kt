@@ -31,13 +31,13 @@ class DataStoreService @Inject constructor(private val dataStoreRepository: Data
         return convertDivisionsOrLinesTextToList(getDataObjAsync(key).await())
     }
 
-    fun saveDivisionsOrLinesText(key: Preferences.Key<String>, value: String) {
-        setDataObj(key, updateDivisionsOrLinesText(value))
-    }
+//    fun saveDivisionsOrLinesText(key: Preferences.Key<String>, value: String) {
+//        setDataObj(key, updateDivisionsOrLinesText(value))
+//    }
 
     private fun convertDivisionsOrLinesTextToList(divisionsText: String): List<Long> =
         divisionsText.trim().split(",").stream().map { it.trim().toLong() }.toList()
 
-    private fun updateDivisionsOrLinesText(divisionsText: String): String =
-        divisionsText.trim().replace("-", ",")
+//    private fun updateDivisionsOrLinesText(divisionsText: String): String =
+//        divisionsText.trim().replace("-", ",")
 }

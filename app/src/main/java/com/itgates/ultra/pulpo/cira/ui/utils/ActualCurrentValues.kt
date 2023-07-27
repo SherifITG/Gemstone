@@ -1,8 +1,6 @@
 package com.itgates.ultra.pulpo.cira.ui.utils
 
 import android.location.Location
-import android.os.Bundle
-import com.google.gson.Gson
 import com.itgates.ultra.pulpo.cira.CoroutineManager
 import com.itgates.ultra.pulpo.cira.dataStore.PreferenceKeys
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.EmbeddedEntity
@@ -14,6 +12,7 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Brick
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.Division
 import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.IdAndNameEntity
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.IdAndNameObj
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum.*
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.MultiplicityEnum.*
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.SettingEnum
@@ -27,51 +26,49 @@ import java.util.Date
 import kotlin.properties.Delegates
 
 class ActualCurrentValues(private val activity: ActualActivity) {
-    private var isManager by Delegates.notNull<Boolean>()
     var userId by Delegates.notNull<Long>()
 
     companion object {
         // start values
-        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Division"))
-        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Brick"))
-        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Acc Type"))
-        val accountStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Account"))
-        val doctorStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Doctor"))
-//        val noOfDoctorStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Doctors Num"))
-        val multiplicityStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Visit Type"))
-        val commentStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Feedback"))
-        val productStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Product"))
-        val giveawayStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Giveaway"))
-        val managerStartValue: IdAndNameObj = IdAndNameEntity(0L, UN_SELECTED, EmbeddedEntity("Select Manager"))
+        val divisionStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Division"), UN_SELECTED, -2)
+        val brickStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Brick"), UN_SELECTED, -2)
+        val accTypeStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Acc Type"), UN_SELECTED, -2)
+        val accountStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Account"), UN_SELECTED, -2)
+        val doctorStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Doctor"), UN_SELECTED, -2)
+        val multiplicityStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Visit Type"), UN_SELECTED, -2)
+        val commentStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Feedback"), UN_SELECTED, -2)
+        val productStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Product"), UN_SELECTED, -2)
+        val giveawayStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Giveaway"), UN_SELECTED, -2)
+        val managerStartValue: IdAndNameObj = IdAndNameEntity(0L, EmbeddedEntity("Select Manager"), UN_SELECTED, -2)
 
         // sample lists
         val productSamplesList: List<IdAndNameEntity> = listOf(
-            IdAndNameEntity(0L, PRODUCT_SAMPLE, EmbeddedEntity("0")),
-            IdAndNameEntity(1L, PRODUCT_SAMPLE, EmbeddedEntity("1")),
-            IdAndNameEntity(2L, PRODUCT_SAMPLE, EmbeddedEntity("2")),
-            IdAndNameEntity(3L, PRODUCT_SAMPLE, EmbeddedEntity("3")),
-            IdAndNameEntity(4L, PRODUCT_SAMPLE, EmbeddedEntity("4")),
-            IdAndNameEntity(5L, PRODUCT_SAMPLE, EmbeddedEntity("5")),
-            IdAndNameEntity(6L, PRODUCT_SAMPLE, EmbeddedEntity("6")),
-            IdAndNameEntity(7L, PRODUCT_SAMPLE, EmbeddedEntity("7")),
-            IdAndNameEntity(8L, PRODUCT_SAMPLE, EmbeddedEntity("8")),
-            IdAndNameEntity(9L, PRODUCT_SAMPLE, EmbeddedEntity("9")),
-            IdAndNameEntity(10L, PRODUCT_SAMPLE, EmbeddedEntity("10"))
+            IdAndNameEntity(0L, EmbeddedEntity("0"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(1L, EmbeddedEntity("1"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(2L, EmbeddedEntity("2"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(3L, EmbeddedEntity("3"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(4L, EmbeddedEntity("4"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(5L, EmbeddedEntity("5"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(6L, EmbeddedEntity("6"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(7L, EmbeddedEntity("7"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(8L, EmbeddedEntity("8"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(9L, EmbeddedEntity("9"), PRODUCT_SAMPLE, -2),
+            IdAndNameEntity(10L, EmbeddedEntity("10"), PRODUCT_SAMPLE, -2)
         )
         val giveawaySamplesList: List<IdAndNameEntity> = listOf(
-            IdAndNameEntity(1L, GIVEAWAY_SAMPLE, EmbeddedEntity("1")),
-            IdAndNameEntity(2L, GIVEAWAY_SAMPLE, EmbeddedEntity("2")),
-            IdAndNameEntity(3L, GIVEAWAY_SAMPLE, EmbeddedEntity("3")),
-            IdAndNameEntity(4L, GIVEAWAY_SAMPLE, EmbeddedEntity("4")),
-            IdAndNameEntity(5L, GIVEAWAY_SAMPLE, EmbeddedEntity("5")),
-            IdAndNameEntity(6L, GIVEAWAY_SAMPLE, EmbeddedEntity("6")),
-            IdAndNameEntity(7L, GIVEAWAY_SAMPLE, EmbeddedEntity("7")),
-            IdAndNameEntity(8L, GIVEAWAY_SAMPLE, EmbeddedEntity("8")),
-            IdAndNameEntity(9L, GIVEAWAY_SAMPLE, EmbeddedEntity("9")),
-            IdAndNameEntity(10L, GIVEAWAY_SAMPLE, EmbeddedEntity("10")),
+            IdAndNameEntity(1L, EmbeddedEntity("1"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(2L, EmbeddedEntity("2"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(3L, EmbeddedEntity("3"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(4L, EmbeddedEntity("4"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(5L, EmbeddedEntity("5"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(6L, EmbeddedEntity("6"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(7L, EmbeddedEntity("7"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(8L, EmbeddedEntity("8"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(9L, EmbeddedEntity("9"), GIVEAWAY_SAMPLE, -2),
+            IdAndNameEntity(10L, EmbeddedEntity("10"), GIVEAWAY_SAMPLE, -2)
         )
         val noOfDoctorList: List<IdAndNameEntity> = List(50) {
-            IdAndNameEntity((it + 1).toLong(), NO_OF_DOCTORS, EmbeddedEntity((it + 1).toString()))
+            IdAndNameEntity((it + 1).toLong(), EmbeddedEntity((it + 1).toString()), NO_OF_DOCTORS, -2)
         }
 
         // texts start values
@@ -80,8 +77,6 @@ class ActualCurrentValues(private val activity: ActualActivity) {
 
     init {
         CoroutineManager.getScope().launch {
-            isManager = activity.getDataStoreService().getDataObjAsync(PreferenceKeys.IS_MANAGER)
-                .await().toInt() == 1
             userId = activity.getDataStoreService().getDataObjAsync(PreferenceKeys.USER_ID)
                 .await().toLong()
         }
@@ -96,9 +91,15 @@ class ActualCurrentValues(private val activity: ActualActivity) {
     var multipleList: List<IdAndNameEntity> = listOf()
     var presentationList: List<Presentation> = listOf()
 
+
+    var managersList: List<IdAndNameEntity> = listOf()
+    var giveawaysList: List<IdAndNameEntity> = listOf()
+    var productsList: List<IdAndNameEntity> = listOf()
+    var feedbacksList: List<IdAndNameEntity> = listOf()
+
     val multiplicityList: List<IdAndNameEntity> = listOf(
-        IdAndNameEntity(1L, MULTIPLICITY, EmbeddedEntity(SINGLE_VISIT.text)),
-        IdAndNameEntity(2L, MULTIPLICITY, EmbeddedEntity(DOUBLE_VISIT.text))
+        IdAndNameEntity(1L, EmbeddedEntity(SINGLE_VISIT.text), MULTIPLICITY, -2),
+        IdAndNameEntity(2L, EmbeddedEntity(DOUBLE_VISIT.text), MULTIPLICITY, -2)
     )
 
     // current values
@@ -140,7 +141,12 @@ class ActualCurrentValues(private val activity: ActualActivity) {
     fun isMultiplicityDouble(): Boolean = (multiplicityCurrentValue as IdAndNameEntity).embedded.name == DOUBLE_VISIT.text
     fun isMainPageAnyItemSelected(): Boolean = isDivisionSelected() || isBrickSelected() ||
             isAccTypeSelected() ||  isAccountSelected() || isDoctorSelected() ||  isMultiplicitySelected()
-    fun isUserManager(): Boolean = isManager
+    fun isUserDivManager(): Boolean {
+        if (isDivisionSelected()) {
+            return divisionsList.find { it.id == divisionCurrentValue.id }!!.notManager == 0
+        }
+        return false
+    }
 
     fun isBrickVisible(): Boolean = isDivisionSelected()
     fun isAccTypeVisible(): Boolean = isDivisionSelected() && isBrickSelected()
@@ -153,22 +159,26 @@ class ActualCurrentValues(private val activity: ActualActivity) {
     fun isAddingGiveawayIsAccepted(): Boolean = giveawaysModuleList.isEmpty() || giveawaysModuleList.last().isGiveawaySelected()
     fun isAddingManagerIsAccepted(): Boolean = managersModuleList.isEmpty() || managersModuleList.last().isManagerSelected()
     fun isAllProductListIsPicked(): Boolean =
-        productsModuleList.size == multipleList.filter { it.tableId == PRODUCT }.size
+        productsModuleList.size == productsList.size
     fun isAllGiveawayListIsPicked(): Boolean =
-        giveawaysModuleList.size == multipleList.filter { it.tableId == GIVEAWAY }.size
+        giveawaysModuleList.size == giveawaysList.size
     fun isAllManagerListIsPicked(): Boolean =
-        managersModuleList.size == multipleList.filter {
-            it.tableId == MANAGER
-        }.filter {
-            it.embedded.name != "System Administrator"
-        }.size
+        managersModuleList.size == managersList.size
+
+    fun getFeedbackList(): List<IdAndNameEntity> = feedbacksList
+    fun getManagerList(): List<IdAndNameEntity> = managersList
+    fun isManagerListEmpty(): Boolean = managersList.isEmpty()
+    fun getProductList(): List<IdAndNameEntity> = productsList
+    fun isProductListEmpty(): Boolean = productsList.isEmpty()
+    fun getGiveawayList(): List<IdAndNameEntity> = giveawaysList
+    fun isGiveawayListEmpty(): Boolean = giveawaysList.isEmpty()
 
     fun isAllDataReady(): String {
         var routeText = "NoRouteText"
-        var toastsText : StringBuilder = StringBuilder("")
+        val toastsText = StringBuilder("")
         if (!isDivisionSelected()) {
             divisionErrorValue = true
-            if (routeText == "NoRouteText") routeText = ActualBarScreen.VisitDetails.route
+            routeText = ActualBarScreen.VisitDetails.route
         }
         if (!isBrickSelected()) {
             brickErrorValue = true
@@ -192,7 +202,7 @@ class ActualCurrentValues(private val activity: ActualActivity) {
         }
 
 
-        if (isMultiplicityDouble() && !isManager) {
+        if (isMultiplicityDouble() && !isUserDivManager()) {
             if (managersModuleList.isEmpty()) {
                 toastsText.append("you should add 1 manager at least")
                 if (routeText == "NoRouteText") routeText = ActualBarScreen.VisitDetails.route
@@ -243,6 +253,7 @@ class ActualCurrentValues(private val activity: ActualActivity) {
                 divisionCurrentValue = idAndNameObj
 
                 activity.loadBrickData(divisionCurrentValue.id)
+                activity.loadIdAndNameEntityData((divisionCurrentValue as Division).lineId)
 
                 brickCurrentValue = brickStartValue
                 accTypeCurrentValue = accTypeStartValue
@@ -262,9 +273,10 @@ class ActualCurrentValues(private val activity: ActualActivity) {
                 accTypeCurrentValue = idAndNameObj
 
                 activity.loadAccountData(
+                    (divisionCurrentValue as Division).lineId,
                     divisionCurrentValue.id,
                     brickCurrentValue.id,
-                    (accTypeCurrentValue as AccountType).table
+                    accTypeCurrentValue.id.toInt()
                 )
 
                 accountCurrentValue = accountStartValue
@@ -273,7 +285,11 @@ class ActualCurrentValues(private val activity: ActualActivity) {
             is Account -> {
                 accountCurrentValue = idAndNameObj
 
-                activity.loadDoctorData(accountCurrentValue.id, (accTypeCurrentValue as AccountType).table)
+                activity.loadDoctorData(
+                    (divisionCurrentValue as Division).lineId,
+                    accountCurrentValue.id,
+                    accTypeCurrentValue.id.toInt()
+                )
 
                 doctorCurrentValue = doctorStartValue
                 noOfDoctorCurrentValue = noOfDoctorList[0]
@@ -301,7 +317,7 @@ class ActualCurrentValues(private val activity: ActualActivity) {
             PRODUCT -> {
                 productsModuleList[index].productCurrentValue = idAndNameObj
             }
-            COMMENT -> {
+            FEEDBACK -> {
                 productsModuleList[index].commentCurrentValue = idAndNameObj
             }
             PRODUCT_SAMPLE -> {
@@ -354,14 +370,22 @@ class ProductModule {
     private fun isCommentSelected(): Boolean = commentCurrentValue.id != 0L
 
     fun isProductCompleted(settingMap: Map<String, Int>, wantToShowErrors: Boolean = false): Boolean {
-        val feedbackValidation = settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FEEDBACK.text)
-                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_FEEDBACK.text] == 0 || isCommentSelected())
-        val commentValidation = settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_COMMENT.text)
-                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_COMMENT.text] == 0 || comment.trim().isNotEmpty())
-        val followUpValidation = settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FOLLOW_UP.text)
-                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_FOLLOW_UP.text] == 0 || followUp.trim().isNotEmpty())
-        val markedFeedbackValidation = settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_M_FEEDBACK.text)
-                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_M_FEEDBACK.text] == 0 || markedFeedback.trim().isNotEmpty())
+        val feedbackValidation = (settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FEEDBACK.text)
+                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_FEEDBACK.text] == 0 || isCommentSelected()))
+                // Todo remove this line or modified it
+                || !(settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FEEDBACK.text))
+        val commentValidation = (settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_COMMENT.text)
+                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_COMMENT.text] == 0 || comment.trim().isNotEmpty()))
+                // Todo remove this line or modified it
+                || !(settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_COMMENT.text))
+        val followUpValidation = (settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FOLLOW_UP.text)
+                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_FOLLOW_UP.text] == 0 || followUp.trim().isNotEmpty()))
+                // Todo remove this line or modified it
+                || !(settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_FOLLOW_UP.text))
+        val markedFeedbackValidation = (settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_M_FEEDBACK.text)
+                && (settingMap[SettingEnum.IS_REQUIRED_PRODUCT_M_FEEDBACK.text] == 0 || markedFeedback.trim().isNotEmpty()))
+                // Todo remove this line or modified it
+                || !(settingMap.containsKey(SettingEnum.IS_REQUIRED_PRODUCT_M_FEEDBACK.text))
 
         if (wantToShowErrors) {
             if (!isProductSelected()) productErrorValue = true

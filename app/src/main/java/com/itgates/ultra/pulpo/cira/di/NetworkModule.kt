@@ -34,9 +34,10 @@ object NetworkModule {
             .readTimeout(35, TimeUnit.SECONDS)
             .addInterceptor { chain ->
                 val originalRequest = chain.request()
-                val builder = originalRequest.newBuilder().header(
-                    "Authorization", ""
-                )
+                val builder = originalRequest.newBuilder()
+//                    .header(
+//                        "Authorization", ""
+//                    )
                 val newRequest = builder.build()
                 chain.proceed(newRequest)
             }.build()
@@ -45,7 +46,7 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .client(okHttpClient)
-            .baseUrl("${application.getString(R.string.BASE_URL_PHARMA)}/android/")
+            .baseUrl("${application.getString(R.string.BASE_URL_PHARMA)}/api/")
     }
 
     @Singleton

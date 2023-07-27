@@ -132,9 +132,10 @@ class OfficeWorkActivity : ComponentActivity() {
 
         this.actualVisit = ActualVisit(
             divId = -1L, /** divId = -1L : this means that the visit is office Work Visit Type */
+            brickId = -1L, /** brickId not used here in office work  */
             accountTypeId = currentValues.officeWorkCurrentValue.id.toInt(),
-            itemId = 0L,
-            itemDoctorId = 0L,
+            accountId = 0L,
+            accountDoctorId = 0L,
             noOfDoctor = 0,
             plannedVisitId =
                 if (actualActivity_isPlannedVisit)
@@ -153,11 +154,8 @@ class OfficeWorkActivity : ComponentActivity() {
                     ShiftEnum.OTHER.text -> ShiftEnum.OTHER
                     else -> { ShiftEnum.OTHER }
                 },
-            comments = currentValues.commentTextCurrentValue, //"NEW_APP",
-            insertionDate = "",
-            insertionTime = "",
             userId = currentValues.userId,
-            teamId = 0L,
+            lineId = 0L,
             llStart = officeWorkActivity_startLocation!!.latitude,
             lgStart = officeWorkActivity_startLocation!!.longitude,
             llEnd = currentValues.endLocation!!.latitude,
@@ -167,7 +165,6 @@ class OfficeWorkActivity : ComponentActivity() {
             isSynced = false,
             syncDate = "",
             syncTime = "",
-            addedDate = GlobalFormats.getDashedDate(Locale.getDefault(), Date()),
             multipleListsInfo = RoomMultipleListsModule(listOf(), listOf(), listOf())
         )
 
@@ -233,7 +230,6 @@ class OfficeWorkActivity : ComponentActivity() {
         if (isPlanned) {
             currentValues.shiftCurrentValue = IdAndNameEntity(
                 passedPlannedOfficeWork!!.plannedVisit.shift.toLong(),
-                IdAndNameTablesNamesEnum.SHIFT,
                 EmbeddedEntity(
                     when(passedPlannedOfficeWork.plannedVisit.shift) {
                         2 -> "AM"
@@ -241,12 +237,15 @@ class OfficeWorkActivity : ComponentActivity() {
                         else -> "Unknown"
                     }
                 ),
+                IdAndNameTablesNamesEnum.SHIFT,
+                -2
             )
             if (passedPlannedOfficeWork.officeWorkName != null) {
                 currentValues.officeWorkCurrentValue = IdAndNameEntity(
                     passedPlannedOfficeWork.plannedVisit.accountTypeId,
-                    IdAndNameTablesNamesEnum.OFFICE_WORK_TYPE,
                     EmbeddedEntity(passedPlannedOfficeWork.officeWorkName),
+                    IdAndNameTablesNamesEnum.OFFICE_WORK_TYPE,
+                    -2
                 )
                 dataStateFlow.value = DataStatus.DONE
             }

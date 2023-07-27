@@ -13,7 +13,6 @@ import com.itgates.ultra.pulpo.cira.roomDataBase.entity.masterData.*
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.IdAndNameTablesNamesEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.SettingEnum
 import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.relationalData.*
-import com.itgates.ultra.pulpo.cira.utilities.FaultedHashMap
 import com.itgates.ultra.pulpo.cira.utilities.GlobalFormats
 import kotlinx.coroutines.launch
 import java.util.*
@@ -25,7 +24,6 @@ import kotlin.streams.toList
 class OfflineDataRepoImpl @Inject constructor(
     private val accountTypeDao: AccountTypeDao,
     private val brickDao: BrickDao,
-    private val classDao: ClassDao,
     private val divisionDao: DivisionDao,
     private val settingDao: SettingDao,
     private val idAndNameDao: IdAndNameDao,
@@ -60,11 +58,9 @@ class OfflineDataRepoImpl @Inject constructor(
 
     override suspend fun loadActualAccountTypes(divIds: List<Long>, brickIds: List<Long>): List<AccountType> {
         return if (brickIds.first() != -1L) {
-            println(" - ${accountTypeDao.loadActualAccountTypes(divIds, brickIds)}")
             accountTypeDao.loadActualAccountTypes(divIds, brickIds)
         }
         else {
-            println(" - ${accountTypeDao.loadActualAccountTypesWithoutBrick(divIds)}")
             accountTypeDao.loadActualAccountTypesWithoutBrick(divIds)
         }
     }
@@ -76,27 +72,33 @@ class OfflineDataRepoImpl @Inject constructor(
     override suspend fun loadClassesData(
         divIds: List<Long>,
         brickIds: List<Long>,
-        accTypeTables: List<String>
-    ): List<Class> {
-        return classDao.loadClassesByIdList(divIds, brickIds, accTypeTables)
+        accTypeIds: List<Int>
+    ): List<IdAndNameEntity> {
+        return idAndNameDao.loadClassesByIdList(
+            IdAndNameTablesNamesEnum.PRODUCT,
+            divIds,
+            brickIds,
+            accTypeIds
+        )
     }
 
-    override suspend fun loadActualUserDivisions(ids: List<Long>): List<Division> {
-        return divisionDao.loadActualUserDivisions(ids)
+    override suspend fun loadUserDivisions(): List<Division> {
+        return divisionDao.loadAll()
     }
 
     override suspend fun loadActualBricks(divIds: List<Long>): List<Brick> {
         return brickDao.loadActualBricks(divIds)
     }
 
-    override suspend fun loadIdAndNameTablesByTAblesListForActualActivity(): List<IdAndNameEntity> {
-        return idAndNameDao.loadAllByTAblesList(
+    override suspend fun loadIdAndNameTablesByTAblesListForActualActivity(lineId: Long): List<IdAndNameEntity> {
+        return idAndNameDao.loadByLineAndByTablesList(
             listOf(
                 IdAndNameTablesNamesEnum.PRODUCT,
-                IdAndNameTablesNamesEnum.COMMENT,
+                IdAndNameTablesNamesEnum.FEEDBACK,
                 IdAndNameTablesNamesEnum.GIVEAWAY,
                 IdAndNameTablesNamesEnum.MANAGER
-            )
+            ),
+            lineId
         )
     }
 
@@ -105,7 +107,7 @@ class OfflineDataRepoImpl @Inject constructor(
     }
 
     override suspend fun loadOfficeWorkTypes(): List<IdAndNameEntity> {
-        return idAndNameDao.loadAllByTAblesList(
+        return idAndNameDao.loadAllByTablesList(
             listOf(
                 IdAndNameTablesNamesEnum.OFFICE_WORK_TYPE,
             )
@@ -113,22 +115,23 @@ class OfflineDataRepoImpl @Inject constructor(
     }
 
     override suspend fun loadProducts(): List<IdAndNameEntity> {
-        return idAndNameDao.loadAllByTAblesList(listOf(IdAndNameTablesNamesEnum.PRODUCT))
+        return idAndNameDao.loadAllByTablesList(listOf(IdAndNameTablesNamesEnum.PRODUCT))
     }
 
     override suspend fun loadActualAccounts(
+        lineId: Long,
         divId: Long,
-        brickIds: List<Long>,
-        table: String
+        brickId: Long,
+        accTypeId: Int
     ): List<Account> {
-        return if (brickIds.first() != -1L)
-            accountDao.loadActualAccounts(divId, brickIds, table)
+        return if (brickId != -1L)
+            accountDao.loadActualAccounts(lineId, divId, brickId, accTypeId)
         else
-            accountDao.loadActualAccountsWithoutBrick(divId, table)
+            accountDao.loadActualAccountsWithoutBrick(lineId, divId, accTypeId)
     }
 
-    override suspend fun loadActualDoctors(accountId: Long, table: String): List<Doctor> {
-        return doctorDao.loadActualDoctors(accountId, table)
+    override suspend fun loadActualDoctors(lineId: Long, accountId: Long, accTypeId: Int): List<Doctor> {
+        return doctorDao.loadActualDoctors(lineId, accountId, accTypeId)
     }
 
     override suspend fun loadPresentations(): List<Presentation> {
@@ -177,8 +180,11 @@ class OfflineDataRepoImpl @Inject constructor(
         return accountDao.loadAllAccountReportData()
     }
 
-    override suspend fun updateAccountLocation(llFirst: String, lgFirst: String, id: Long) {
-        accountDao.updateAccountLocation(llFirst, lgFirst, id)
+    override suspend fun updateAccountLocation(
+        llFirst: String, lgFirst: String,
+        id: Long, accTypeId: Int, lineId: Long, divId: Long, brickId: Long
+    ) {
+        accountDao.updateAccountLocation(llFirst, lgFirst, id, accTypeId, lineId, divId, brickId)
     }
 
     override suspend fun loadAllDoctorReportData(): List<DoctorData> {
@@ -186,14 +192,14 @@ class OfflineDataRepoImpl @Inject constructor(
     }
 
     override suspend fun loadAllDoctorPlanningData(): List<DoctorPlanningData> {
-        return doctorDao.loadAllDoctorPlanningData(IdAndNameTablesNamesEnum.SPECIALITY)
+        return doctorDao.loadAllDoctorPlanningData()
     }
 
 
     override suspend fun uploadedActualVisitData(actualVisitDTO: ActualVisitDTO) {
         return actualVisitDao.updateSyncedActualVisits(
             actualVisitDTO.visitId, actualVisitDTO.syncDate, actualVisitDTO.syncTime,
-            (actualVisitDTO.isSynced == 1), actualVisitDTO.offlineId
+            true, actualVisitDTO.offlineId
         )
     }
 
@@ -208,38 +214,35 @@ class OfflineDataRepoImpl @Inject constructor(
         return if (actualVisit.divisionId == -1L) {
             actualVisitDao.insertOfficeWorkWithValidation(
                 actualVisit.onlineId, actualVisit.divisionId, actualVisit.accountTypeId,
-                actualVisit.itemId, actualVisit.itemDoctorId, actualVisit.noOfDoctors,
+                actualVisit.accountId, actualVisit.accountDoctorId, actualVisit.noOfDoctors,
                 actualVisit.plannedVisitId, actualVisit.multiplicity, actualVisit.startDate,
                 actualVisit.startTime, actualVisit.endDate, actualVisit.endTime, actualVisit.shift,
-                actualVisit.comments, actualVisit.insertionDate, actualVisit.insertionTime,
-                actualVisit.userId, actualVisit.teamId, actualVisit.llStart, actualVisit.lgStart,
+                actualVisit.userId, actualVisit.lineId, actualVisit.llStart, actualVisit.lgStart,
                 actualVisit.llEnd, actualVisit.lgEnd, actualVisit.visitDuration,
                 actualVisit.visitDeviation, actualVisit.isSynced, actualVisit.syncDate,
-                actualVisit.syncTime, actualVisit.addedDate, actualVisit.multipleListsInfo
+                actualVisit.syncTime, actualVisit.multipleListsInfo
             )
         }
         else {
             actualVisitDao.insertActualVisitWithValidation(
                 actualVisit.onlineId, actualVisit.divisionId, actualVisit.accountTypeId,
-                actualVisit.itemId, actualVisit.itemDoctorId, actualVisit.noOfDoctors,
+                actualVisit.accountId, actualVisit.accountDoctorId, actualVisit.noOfDoctors,
                 actualVisit.plannedVisitId, actualVisit.multiplicity, actualVisit.startDate,
                 actualVisit.startTime, actualVisit.endDate, actualVisit.endTime, actualVisit.shift,
-                actualVisit.comments, actualVisit.insertionDate, actualVisit.insertionTime,
-                actualVisit.userId, actualVisit.teamId, actualVisit.llStart, actualVisit.lgStart,
+                actualVisit.userId, actualVisit.lineId, actualVisit.llStart, actualVisit.lgStart,
                 actualVisit.llEnd, actualVisit.lgEnd, actualVisit.visitDuration,
                 actualVisit.visitDeviation, actualVisit.isSynced, actualVisit.syncDate,
-                actualVisit.syncTime, actualVisit.addedDate, actualVisit.multipleListsInfo
+                actualVisit.syncTime, actualVisit.multipleListsInfo
             )
         }
     }
 
     override suspend fun saveMasterData(masterDataPharmaResponse: MasterDataPharmaResponse) {
-        idAndNameDao.insertAll(masterDataPharmaResponse.Data.collectAllIdAndNameRoomObjects())
-        accountTypeDao.insertAll(masterDataPharmaResponse.Data.collectAccTypeRoomObjects())
-        brickDao.insertAll(masterDataPharmaResponse.Data.collectBrickRoomObjects())
-        classDao.insertAll(masterDataPharmaResponse.Data.collectClassRoomObjects())
-        divisionDao.insertAll(masterDataPharmaResponse.Data.collectDivisionRoomObjects())
-        settingDao.insertAll(masterDataPharmaResponse.Data.collectSettingRoomObjects())
+        idAndNameDao.insertAll(masterDataPharmaResponse.data.collectAllIdAndNameRoomObjects())
+        accountTypeDao.insertAll(masterDataPharmaResponse.data.collectAccTypeRoomObjects())
+        brickDao.insertAll(masterDataPharmaResponse.data.collectBrickRoomObjects())
+        divisionDao.insertAll(masterDataPharmaResponse.data.collectDivisionRoomObjects())
+//        settingDao.insertAll(masterDataPharmaResponse.Data.collectSettingRoomObjects())
     }
 
     override suspend fun saveAccountAndDoctorData(
@@ -281,9 +284,9 @@ class OfflineDataRepoImpl @Inject constructor(
                 val job = CoroutineManager.getScope().launch {
                     planingMap[index] = newPlanDao.insertNewPlanWithValidation(
                         planningObj.onlineId, planningObj.divisionId, planningObj.accountTypeId.toInt(),
-                        planningObj.itemId, planningObj.itemDoctorId, planningObj.members,
+                        planningObj.accountId, planningObj.accountDoctorId, planningObj.members,
                         planningObj.visitDate, planningObj.visitTime, planningObj.shift,
-                        planningObj.insertionDate, planningObj.userId, planningObj.teamId,
+                        planningObj.insertionDate, planningObj.userId, planningObj.lineId,
                         planningObj.isApproved, planningObj.relatedId, planningObj.isSynced,
                         planningObj.syncDate, planningObj.syncTime
                     )
@@ -321,7 +324,6 @@ class OfflineDataRepoImpl @Inject constructor(
         idAndNameDao.deleteAll()
         accountTypeDao.deleteAll()
         brickDao.deleteAll()
-        classDao.deleteAll()
         divisionDao.deleteAll()
         settingDao.deleteAll()
     }

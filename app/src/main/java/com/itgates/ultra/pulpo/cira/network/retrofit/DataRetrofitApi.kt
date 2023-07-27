@@ -1,58 +1,52 @@
 package com.itgates.ultra.pulpo.cira.network.retrofit
 
 import com.itgates.ultra.pulpo.cira.network.models.requestModels.UploadedActualVisitModel
+import com.itgates.ultra.pulpo.cira.network.models.requestModels.UploadedActualVisitsListModel
 import com.itgates.ultra.pulpo.cira.network.models.requestModels.UploadedNewPlanModel
 import com.itgates.ultra.pulpo.cira.network.models.responseModels.responses.*
 import kotlinx.coroutines.Deferred
+import retrofit2.Response
 import retrofit2.http.*
 
 interface DataRetrofitApi {
 
-    @POST("index.php")
+    @POST("login")
     fun pharmaAuthenticateUserAsync(
         @HeaderMap headers: Map<String, String>,
-        @Query("FN") FN: String,
-        @Query("username") CheckLogin: String,
+        @Query("name") username: String,
         @Query("password") password: String
-    ): Deferred<LoginPharmaResponse>
+    ): Deferred<Response<LoginPharmaResponse>>
 
-    @GET("index.php")
+    @GET("user")
+    fun pharmaUserDataAsync(
+        @HeaderMap headers: Map<String, String>
+    ): Deferred<UserPharmaResponse>
+
+    @GET("master-data")
     fun masterDataAsync(
-        @HeaderMap headers: Map<String, String>,
-        @Query("FN") FN: String,
-        @Query("today") today: String,
-        @Query("userId") userId: String,
-        @Query("lineId") lineId: String,
-        @Query("divId") divId: String
+        @HeaderMap headers: Map<String, String>
     ): Deferred<MasterDataPharmaResponse>
 
-    @GET("index.php")
+    @GET("accounts-doctors")
     fun accountsAndDoctorsDetailsAsync(
-        @HeaderMap headers: Map<String, String>,
-        @Query("FN") FN: String,
-        @Query("lineId") lineId: String,
-        @Query("divId") divId: String
+        @HeaderMap headers: Map<String, String>
     ): Deferred<AccountsAndDoctorsDetailsPharmaResponse>
 
     @GET("index.php")
     fun presentationsAndSlidesDetailsAsync(
         @HeaderMap headers: Map<String, String>,
-        @Query("FN") FN: String,
         @Query("teamId") lineId: String
     ): Deferred<PresentationsAndSlidesDetailsPharmaResponse>
 
-    @GET("index.php")
+    @GET("plan-visits")
     fun plannedVisitsDataAsync(
-        @HeaderMap headers: Map<String, String>,
-        @Query("FN") FN: String,
-        @Query("today") today: String,
-        @Query("userId") userId: String
+        @HeaderMap headers: Map<String, String>
     ): Deferred<PlannedVisitsPharmaResponse>
 
-    @POST("_visit.php")
+    @POST("actual-visit")
     fun uploadActualVisitAsync(
         @HeaderMap headers: Map<String, String>,
-        @Body List: List<UploadedActualVisitModel>
+        @Body uploadedListObj: UploadedActualVisitsListModel
     ): Deferred<ActualVisitPharmaResponse>
 
     @POST("_planned.php")

@@ -44,17 +44,17 @@ class DataCenterActivity : BaseDataActivity() {
                                     modifier = Modifier.fillMaxSize(),
                                     verticalArrangement = Arrangement.spacedBy(padding_8)
                                 ) {
-                                    item {
-                                        ReportItemComposeView("GET ALL DATA", true,  R.drawable.data_all_data_icon) {
-                                            if (loadingAllStateFlow.value == 0) {
-                                                loadingAllStateFlow.value = 1 // fired
-                                                updateMasterData()
-                                                updateAccountAndDoctorData()
-                                                updatePlannedVisitData()
-                                                updatePresentationAndSlideData()
-                                            }
-                                        }
-                                    }
+//                                    item {
+//                                        ReportItemComposeView("GET ALL DATA", true,  R.drawable.data_all_data_icon) {
+//                                            if (loadingAllStateFlow.value == 0) {
+//                                                loadingAllStateFlow.value = 1 // fired
+//                                                updateMasterData()
+//                                                updateAccountAndDoctorData()
+//                                                updatePlannedVisitData()
+//                                                updatePresentationAndSlideData()
+//                                            }
+//                                        }
+//                                    }
                                     item {
                                         ReportItemComposeView("GET MASTER DATA", false,  R.drawable.data_master_data_icon) {
                                             if (loadingAllStateFlow.value == 0) {
@@ -79,14 +79,14 @@ class DataCenterActivity : BaseDataActivity() {
                                             }
                                         }
                                     }
-                                    item {
-                                        ReportItemComposeView("GET PRESENTATIONS DATA", false, R.drawable.report_planned_visits_icon) {
-                                            if (loadingAllStateFlow.value == 0) {
-                                                loadingAllStateFlow.value = 4
-                                                updatePresentationAndSlideData()
-                                            }
-                                        }
-                                    }
+//                                    item {
+//                                        ReportItemComposeView("GET PRESENTATIONS DATA", false, R.drawable.report_planned_visits_icon) {
+//                                            if (loadingAllStateFlow.value == 0) {
+//                                                loadingAllStateFlow.value = 4
+//                                                updatePresentationAndSlideData()
+//                                            }
+//                                        }
+//                                    }
                                 }
                             }
                             NoInternetDialog(internetStateFlow)

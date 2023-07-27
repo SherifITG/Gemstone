@@ -29,12 +29,11 @@ object RepoModule {
         roomDataBase: AppDatabase,
     ): OfflineDataRepo {
         return OfflineDataRepoImpl(
-            roomDataBase.accountTypeDao(), roomDataBase.brickDao(), roomDataBase.classDao(),
-            roomDataBase.divisionDao(), roomDataBase.settingDao(), roomDataBase.idAndNameDao(),
-            roomDataBase.accountDao(), roomDataBase.doctorDao(),roomDataBase.presentationDao(),
-            roomDataBase.slideDao(), roomDataBase.plannedVisitDao(), roomDataBase.actualVisitDao(),
-            roomDataBase.offlineLogDao(), roomDataBase.offlineLocDao(),
-            roomDataBase.newPlanDao()
+            roomDataBase.accountTypeDao(), roomDataBase.brickDao(), roomDataBase.divisionDao(),
+            roomDataBase.settingDao(), roomDataBase.idAndNameDao(), roomDataBase.accountDao(),
+            roomDataBase.doctorDao(),roomDataBase.presentationDao(), roomDataBase.slideDao(),
+            roomDataBase.plannedVisitDao(), roomDataBase.actualVisitDao(), roomDataBase.offlineLogDao(),
+            roomDataBase.offlineLocDao(), roomDataBase.newPlanDao()
 
         )
     }

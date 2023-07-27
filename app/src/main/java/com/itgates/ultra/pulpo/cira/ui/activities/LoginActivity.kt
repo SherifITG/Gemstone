@@ -2,7 +2,6 @@ package com.itgates.ultra.pulpo.cira.ui.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -26,6 +25,7 @@ import com.itgates.ultra.pulpo.cira.ui.composeUI.LoginPage
 import com.itgates.ultra.pulpo.cira.utilities.GlobalFormats
 import com.itgates.ultra.pulpo.cira.utilities.Utilities
 import com.itgates.ultra.pulpo.cira.R
+import com.itgates.ultra.pulpo.cira.network.models.responseModels.responses.UserPharmaResponse
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -39,6 +39,10 @@ class LoginActivity : ComponentActivity() {
     private val internetStateFlow = MutableStateFlow(false)
     private val loadingStateFlow = MutableStateFlow(false)
     private val trial = MutableStateFlow(false)
+
+    companion object {
+        var accessToken = ""
+    }
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,8 +173,12 @@ class LoginActivity : ComponentActivity() {
 
     private fun setObservers() {
         serverViewModel.authenticationData.observeForever {
-            loadingStateFlow.value = false
             dealWithLoginResponse(it)
+        }
+
+        serverViewModel.userData.observeForever {
+            loadingStateFlow.value = false
+            dealWithUserResponse(it)
         }
     }
 
@@ -185,24 +193,37 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun dealWithLoginResponse(loginDataResponse: LoginPharmaResponse) {
-        CoroutineManager.getScope().launch {
-            if (loginDataResponse.Data.isNotEmpty()) {
-                val userData = loginDataResponse.Data[0]
-                val dataStoreService = cacheViewModel.getDataStoreService()
-                val isNewUser = dataStoreService.getDataObjAsync(PreferenceKeys.USER_ID).await().isEmpty()
-                        || userData.UserId != dataStoreService.getDataObjAsync(PreferenceKeys.USER_ID).await()
+        if (loginDataResponse.access_token.isNotEmpty()) {
+            CoroutineManager.getScope().launch {
+                println("-------------------------------------------------- 0000 -----")
+                println(loginDataResponse.access_token)
+                // TODO save access token
+                accessToken = loginDataResponse.access_token
 
-                if (isNewUser) {
+                serverViewModel.fetchUserData(loginDataResponse.access_token)
+            }
+        }
+        else {
+//            Utilities.createCustomToast(applicationContext, "There is error with login, Please try again")
+            Utilities.createCustomToast(applicationContext, loginDataResponse.Status_Message)
+            loadingStateFlow.value = false
+        }
+    }
+
+    private fun dealWithUserResponse(userDataResponse: UserPharmaResponse) {
+        CoroutineManager.getScope().launch {
+            val userData = userDataResponse.user
+            val dataStoreService = cacheViewModel.getDataStoreService()
+            val isNewUser = dataStoreService.getDataObjAsync(PreferenceKeys.USER_ID).await().isEmpty()
+                    || userData.id.toString() != dataStoreService.getDataObjAsync(PreferenceKeys.USER_ID).await()
+
+            if (isNewUser) {
 //                    "Are you sure you want to login with different user?"
 //                    must ensure that all data deleted
-                }
+            }
 
-                dealWithAuthData(dataStoreService, userData)
-                Utilities.navigateToMainActivity(this@LoginActivity, isNewUser)
-            }
-            else {
-                Utilities.createCustomToast(applicationContext, "There is error with login, Please try again")
-            }
+            dealWithAuthData(dataStoreService, userData)
+            Utilities.navigateToMainActivity(this@LoginActivity, isNewUser)
         }
     }
 
@@ -211,16 +232,11 @@ class LoginActivity : ComponentActivity() {
         dataStoreService.setDataObj(
             PreferenceKeys.LAST_LOGIN, GlobalFormats.getFullDate(Locale.getDefault(), Date())
         )
-        dataStoreService.setDataObj(PreferenceKeys.IS_MANAGER, userData.IsManager)
-        dataStoreService.setDataObj(PreferenceKeys.USER_ID, userData.UserId)
-        dataStoreService.setDataObj(PreferenceKeys.DIVISIONS_NAME, userData.DivisionName)
-        dataStoreService.setDataObj(PreferenceKeys.LINE_NAME, userData.DefaultLineName)
-        dataStoreService.setDataObj(PreferenceKeys.CODE, userData.Code)
-        dataStoreService.setDataObj(PreferenceKeys.USERNAME, userData.Username)
-        dataStoreService.setDataObj(PreferenceKeys.NAME, userData.Name)
+        println("$userData")
+        dataStoreService.setDataObj(PreferenceKeys.USER_ID, userData.id.toString())
+        dataStoreService.setDataObj(PreferenceKeys.CODE, userData.empCode ?: "0")
+        dataStoreService.setDataObj(PreferenceKeys.USERNAME, userData.name)
+        dataStoreService.setDataObj(PreferenceKeys.FULL_NAME, userData.fullName)
         dataStoreService.setDataObj(PreferenceKeys.REMEMBER_ME, rememberMe.value.toString())
-
-        dataStoreService.saveDivisionsOrLinesText(PreferenceKeys.LINES_IDS, userData.LineIds)
-        dataStoreService.saveDivisionsOrLinesText(PreferenceKeys.DIVISIONS_IDS, userData.DivIds)
     }
 }

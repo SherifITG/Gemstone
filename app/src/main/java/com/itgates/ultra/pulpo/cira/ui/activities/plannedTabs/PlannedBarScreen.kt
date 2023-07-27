@@ -1,6 +1,7 @@
 package com.itgates.ultra.pulpo.cira.ui.activities.plannedTabs
 
 import com.itgates.ultra.pulpo.cira.R
+import com.itgates.ultra.pulpo.cira.roomDataBase.roomUtils.enums.ShiftEnum
 
 sealed class PlannedBarScreen(
     val route: String,
@@ -14,21 +15,21 @@ sealed class PlannedBarScreen(
         title = "AM",
         icon = R.drawable.acual_visit_focus_icon,
         iconFocused = R.drawable.acual_visit_focus_icon,
-        shiftIndex = 2
+        shiftIndex = ShiftEnum.AM_SHIFT.index.toInt()
     )
     object PmTap: PlannedBarScreen(
         route = "pm_tap",
         title = "PM",
         icon = R.drawable.acual_visit_focus_icon,
         iconFocused = R.drawable.acual_visit_focus_icon,
-        shiftIndex = 1
+        shiftIndex = ShiftEnum.PM_SHIFT.index.toInt()
     )
     object OtherTap: PlannedBarScreen(
         route = "other_tap",
         title = "Other",
         icon = R.drawable.acual_visit_focus_icon,
         iconFocused = R.drawable.acual_visit_focus_icon,
-        shiftIndex = 3
+        shiftIndex = ShiftEnum.OTHER.index.toInt()
     )
     object OfficeWorkTap: PlannedBarScreen(
         route = "Office_Work_tap",
